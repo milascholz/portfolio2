@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import type { CSSProperties, MouseEvent } from "react";
+import { BASE_PATH } from "@/lib/base-path";
 
 type Bite = { cx: number; cy: number; r: number };
 
@@ -123,7 +124,7 @@ export default function CookieButton() {
     >
       <div ref={imageRef} className="relative aspect-square" style={style}>
         <Image
-          src={cookieSrc}
+          src={`${BASE_PATH}${cookieSrc}`}
           alt="A cookie"
           fill
           sizes="80px"

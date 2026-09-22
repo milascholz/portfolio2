@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Mail } from "lucide-react";
 import CookieButton from "./CookieButton";
+import { BASE_PATH } from "@/lib/base-path";
 
 function LinkedInIcon({ className }: { className?: string }) {
   return (
@@ -84,7 +85,7 @@ export default function Sidebar() {
                     }`}
                   >
                     <Image
-                      src={`/images/cookies/cookie-${selectorCookie}.png`}
+                      src={`${BASE_PATH}/images/cookies/cookie-${selectorCookie}.png`}
                       alt=""
                       width={64}
                       height={64}
@@ -140,7 +141,7 @@ export default function Sidebar() {
                         }`}
                       >
                         <Image
-                          src={`/images/cookies/cookie-${n}.png`}
+                          src={`${BASE_PATH}/images/cookies/cookie-${n}.png`}
                           alt=""
                           fill
                           sizes="44px"

@@ -1,4 +1,5 @@
 import type { Project } from "@/data/projects";
+import { BASE_PATH } from "@/lib/base-path";
 
 export default function ProjectCard({ project }: { project: Project }) {
   return (
@@ -9,8 +10,8 @@ export default function ProjectCard({ project }: { project: Project }) {
       {project.video ? (
         <video
           className="aspect-video w-full object-cover"
-          src={project.video}
-          poster={project.poster}
+          src={`${BASE_PATH}${project.video}`}
+          poster={project.poster ? `${BASE_PATH}${project.poster}` : undefined}
           autoPlay
           loop
           muted
