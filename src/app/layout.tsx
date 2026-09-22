@@ -1,18 +1,21 @@
 import type { Metadata } from "next";
-import { Baloo_2, Caveat } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
 
-const baloo = Baloo_2({
-  variable: "--font-baloo",
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
-});
-
-const caveat = Caveat({
-  variable: "--font-caveat",
-  subsets: ["latin"],
-  weight: ["500", "600"],
+const switzer = localFont({
+  src: [
+    { path: "./fonts/Switzer-Regular.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/Switzer-RegularItalic.woff2", weight: "400", style: "italic" },
+    { path: "./fonts/Switzer-Medium.woff2", weight: "500", style: "normal" },
+    { path: "./fonts/Switzer-MediumItalic.woff2", weight: "500", style: "italic" },
+    { path: "./fonts/Switzer-Semibold.woff2", weight: "600", style: "normal" },
+    { path: "./fonts/Switzer-SemiboldItalic.woff2", weight: "600", style: "italic" },
+    { path: "./fonts/Switzer-Bold.woff2", weight: "700", style: "normal" },
+    { path: "./fonts/Switzer-Black.woff2", weight: "900", style: "normal" },
+  ],
+  variable: "--font-switzer",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -22,11 +25,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="en"
-      className={`${baloo.variable} ${caveat.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col md:flex-row">
+    <html lang="en" className={`${switzer.variable} antialiased`}>
+      <body className="min-h-screen flex flex-col md:flex-row gap-6 bg-background p-6 text-foreground">
         <Sidebar />
         <main className="flex-1 min-w-0">{children}</main>
       </body>
