@@ -165,7 +165,7 @@ export default function CookieButton() {
       aria-label="A cookie — click to take a bite"
       className="relative block w-20 shrink-0 focus:outline-none"
     >
-      <div ref={imageRef} className="relative -mt-3 aspect-square" style={style}>
+      <div ref={imageRef} className="relative aspect-square" style={style}>
         <Image
           src={`${BASE_PATH}${cookieSrc}`}
           alt="A cookie"
@@ -176,7 +176,7 @@ export default function CookieButton() {
       </div>
 
       <div
-        className={`mt-1 min-h-[24px] text-center text-[10px] leading-tight text-black/60 ${
+        className={`mt-1 h-[14px] whitespace-nowrap text-left text-[10px] leading-[14px] text-black/60 ${
           clickCount !== null ? "visible" : "invisible"
         }`}
       >

@@ -323,7 +323,7 @@ export default function Sidebar() {
 
         <div className="flex items-center">
           <div
-            className={`overflow-hidden transition-[max-width,opacity] duration-300 ease-in-out ${
+            className={`transition-[max-width,opacity] duration-300 ease-in-out ${
               isProjectMode ? "max-w-0 opacity-0" : "max-w-[5rem] opacity-100"
             }`}
           >
