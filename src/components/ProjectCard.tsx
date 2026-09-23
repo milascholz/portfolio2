@@ -1,30 +1,107 @@
+"use client";
+
+import { useState, type MouseEvent } from "react";
+import Link from "next/link";
 import type { Project } from "@/data/projects";
 import { BASE_PATH } from "@/lib/base-path";
 
-export default function ProjectCard({ project }: { project: Project }) {
+function ArrowUpRight() {
   return (
-    <a
-      href="#"
-      className="group flex flex-col overflow-hidden border border-black bg-white"
+    <svg
+      viewBox="0 0 16 16"
+      width="11"
+      height="11"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      className="shrink-0"
     >
-      {project.video ? (
-        <video
-          className="aspect-video w-full object-cover"
-          src={`${BASE_PATH}${project.video}`}
-          poster={project.poster ? `${BASE_PATH}${project.poster}` : undefined}
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="metadata"
-        />
-      ) : (
-        <div className="aspect-video" style={{ backgroundImage: project.gradient }} />
-      )}
-      <div className="flex flex-col gap-0.5 border-t border-black px-4 py-3">
+      <path d="M4 12L12 4M12 4H5M12 4V11" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export default function ProjectCard({ project }: { project: Project }) {
+  const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
+  const [isHovering, setIsHovering] = useState(false);
+  const hasLink = Boolean(project.link);
+
+  function handleMouseMove(event: MouseEvent<HTMLElement>) {
+    const rect = event.currentTarget.getBoundingClientRect();
+    setCursorPos({ x: event.clientX - rect.left, y: event.clientY - rect.top });
+  }
+
+  const media = project.video ? (
+    <video
+      className="aspect-video w-full object-cover"
+      src={`${BASE_PATH}${project.video}`}
+      poster={project.poster ? `${BASE_PATH}${project.poster}` : undefined}
+      autoPlay
+      loop
+      muted
+      playsInline
+      preload="metadata"
+    />
+  ) : (
+    <div className="aspect-video" style={{ backgroundImage: project.gradient }} />
+  );
+
+  const body = (
+    <div className="flex items-start justify-between gap-3 border-t border-black px-4 py-3">
+      <div className="flex flex-col gap-0.5">
         <h3 className="font-semibold text-foreground">{project.title}</h3>
         <p className="text-sm text-foreground/55">{project.subheading}</p>
       </div>
-    </a>
+      {project.tag ? (
+        <span className="shrink-0 whitespace-nowrap border border-black px-2 py-1 text-xs font-medium text-foreground">
+          {project.tag}
+        </span>
+      ) : null}
+    </div>
+  );
+
+  if (!hasLink) {
+    return (
+      <div className="flex flex-col overflow-hidden border border-black bg-white">
+        {media}
+        {body}
+      </div>
+    );
+  }
+
+  const cursorTag =
+    isHovering && project.linkLabel ? (
+      <div
+        className="pointer-events-none absolute z-20 flex items-center gap-1 whitespace-nowrap border border-black bg-white px-2 py-1 text-xs font-medium text-foreground shadow-sm"
+        style={{ left: cursorPos.x, top: cursorPos.y, transform: "translate(10px, 10px)" }}
+      >
+        {project.linkLabel}
+        {project.linkExternal ? <ArrowUpRight /> : null}
+      </div>
+    ) : null;
+
+  const sharedProps = {
+    className: "group relative flex cursor-none flex-col overflow-hidden border border-black bg-white",
+    onMouseEnter: () => setIsHovering(true),
+    onMouseLeave: () => setIsHovering(false),
+    onMouseMove: handleMouseMove,
+  };
+
+  if (project.linkExternal) {
+    return (
+      <a href={project.link} target="_blank" rel="noopener noreferrer" {...sharedProps}>
+        {media}
+        {body}
+        {cursorTag}
+      </a>
+    );
+  }
+
+  return (
+    <Link href={project.link!} {...sharedProps}>
+      {media}
+      {body}
+      {cursorTag}
+    </Link>
   );
 }

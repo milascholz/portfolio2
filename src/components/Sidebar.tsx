@@ -4,9 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Mail } from "lucide-react";
+import { ArrowLeft, Mail } from "lucide-react";
 import CookieButton from "./CookieButton";
+import CalloutTail from "./CalloutTail";
 import { BASE_PATH } from "@/lib/base-path";
+import { useProjectNav } from "@/context/ProjectNavContext";
 
 function LinkedInIcon({ className }: { className?: string }) {
   return (
@@ -22,19 +24,27 @@ function LinkedInIcon({ className }: { className?: string }) {
 }
 
 const NAV_ITEMS = [
-  { href: "/", label: "home" },
+  { href: "/", label: "projects" },
   { href: "/about", label: "about" },
   { href: "/experience", label: "experience" },
 ];
 
+function normalizePath(path: string) {
+  return path !== "/" && path.endsWith("/") ? path.slice(0, -1) : path;
+}
+
 const SELECTOR_OPTIONS = [1, 7, 38, 13];
 const SELECTOR_STORAGE_KEY = "mila-portfolio:selector-cookie";
+const CUSTOMIZE_CLOSE_DELAY_MS = 300;
 
 export default function Sidebar() {
   const pathname = usePathname();
   const [selectorCookie, setSelectorCookie] = useState(SELECTOR_OPTIONS[0]);
   const [customizeOpen, setCustomizeOpen] = useState(false);
-  const customizeRef = useRef<HTMLDivElement>(null);
+  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const projectNav = useProjectNav();
+  const isProjectMode = Boolean(projectNav);
+  const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
 
   useEffect(() => {
     const stored = window.localStorage.getItem(SELECTOR_STORAGE_KEY);
@@ -45,20 +55,58 @@ export default function Sidebar() {
   }, []);
 
   useEffect(() => {
-    if (!customizeOpen) return;
-    function handleClickOutside(event: MouseEvent) {
-      if (customizeRef.current && !customizeRef.current.contains(event.target as Node)) {
-        setCustomizeOpen(false);
-      }
+    return () => {
+      if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!projectNav) {
+      setActiveSectionId(null);
+      return;
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [customizeOpen]);
+
+    const sectionIds = projectNav.sections.map((section) => section.id);
+    const elements = sectionIds
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => el !== null);
+
+    setActiveSectionId(sectionIds[0] ?? null);
+    if (elements.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((entry) => entry.isIntersecting);
+        if (visible.length === 0) return;
+        const topMost = visible.reduce((a, b) =>
+          a.boundingClientRect.top < b.boundingClientRect.top ? a : b
+        );
+        setActiveSectionId(topMost.target.id);
+      },
+      { rootMargin: "-15% 0px -70% 0px", threshold: 0 }
+    );
+
+    elements.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [projectNav]);
+
+  function openCustomize() {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+    setCustomizeOpen(true);
+  }
+
+  function scheduleCloseCustomize() {
+    closeTimeoutRef.current = setTimeout(() => {
+      setCustomizeOpen(false);
+    }, CUSTOMIZE_CLOSE_DELAY_MS);
+  }
 
   function selectCookie(n: number) {
     setSelectorCookie(n);
     window.localStorage.setItem(SELECTOR_STORAGE_KEY, String(n));
-    setCustomizeOpen(false);
   }
 
   return (
@@ -66,13 +114,61 @@ export default function Sidebar() {
       <div className="flex h-full flex-col justify-between px-7 py-8">
         <div className="flex flex-col gap-10">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-black">mila scholz</h1>
-            <p className="italic text-black mt-0.5">created to create</p>
+            <h1 className="flex items-baseline overflow-hidden text-2xl font-bold tracking-tight text-black">
+              <span>m</span>
+              <span
+                className={`inline-block overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-500 ease-in-out ${
+                  isProjectMode ? "max-w-0 opacity-0" : "max-w-[2.5rem] opacity-100"
+                }`}
+              >
+                ila
+              </span>
+              <span
+                className={`inline-block overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-500 ease-in-out ${
+                  isProjectMode ? "max-w-0 opacity-0" : "max-w-[0.4rem] opacity-100"
+                }`}
+              >
+                &nbsp;
+              </span>
+              <span>s</span>
+              <span
+                className={`inline-block overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-500 ease-in-out ${
+                  isProjectMode ? "max-w-0 opacity-0" : "max-w-[6rem] opacity-100"
+                }`}
+              >
+                cholz
+              </span>
+            </h1>
+            <div className="relative mt-0.5 h-[1.375rem]">
+              <p
+                className={`absolute inset-0 italic text-black transition-opacity duration-300 ${
+                  isProjectMode ? "pointer-events-none opacity-0" : "opacity-100"
+                }`}
+              >
+                created to create
+              </p>
+              <Link
+                href="/"
+                className={`absolute inset-0 flex items-center gap-1.5 text-[15px] font-medium text-foreground/70 transition-opacity duration-300 hover:text-foreground ${
+                  isProjectMode ? "opacity-100" : "pointer-events-none opacity-0"
+                }`}
+              >
+                <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2} />
+                back
+              </Link>
+            </div>
           </div>
 
-          <nav className="flex flex-col gap-4">
+          <div className="grid">
+          <nav
+            className={`col-start-1 row-start-1 flex flex-col gap-4 transition-all duration-300 ease-in-out ${
+              isProjectMode
+                ? "pointer-events-none -translate-y-3 opacity-0"
+                : "translate-y-0 opacity-100"
+            }`}
+          >
             {NAV_ITEMS.map((item) => {
-              const isActive = pathname === item.href;
+              const isActive = normalizePath(pathname) === item.href;
               return (
                 <Link
                   key={item.href}
@@ -105,70 +201,154 @@ export default function Sidebar() {
               );
             })}
 
-            <div ref={customizeRef} className="relative">
-              <button
-                type="button"
-                onClick={() => setCustomizeOpen((v) => !v)}
-                className="group flex w-full items-center gap-2.5 text-[15px]"
-              >
-                <span className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            <div
+              className="group relative"
+              onMouseEnter={openCustomize}
+              onMouseLeave={scheduleCloseCustomize}
+            >
+              <div className="flex w-full items-center gap-2.5 text-[15px]">
                 <span
-                  className={`transition-colors ${
-                    customizeOpen
-                      ? "text-foreground"
-                      : "text-foreground/60 group-hover:text-foreground"
+                  className={`relative flex h-3.5 w-3.5 shrink-0 items-center justify-center transition-opacity duration-200 ${
+                    customizeOpen ? "opacity-40" : "opacity-0"
+                  }`}
+                >
+                  <Image
+                    src={`${BASE_PATH}/images/cookies/cookie-${selectorCookie}.png`}
+                    alt=""
+                    width={64}
+                    height={64}
+                    className="h-3.5 w-3.5 object-contain"
+                  />
+                </span>
+                <span
+                  className={`relative transition-colors ${
+                    customizeOpen ? "text-foreground" : "text-foreground/60"
                   }`}
                 >
                   customize
+                  <div
+                    className={`pointer-events-none absolute left-1/2 top-full z-20 -translate-x-1/2 pt-px transition-opacity duration-200 ${
+                      customizeOpen ? "opacity-100" : "opacity-0"
+                    }`}
+                  >
+                    <CalloutTail direction="up" />
+                  </div>
                 </span>
-              </button>
+              </div>
 
-              {customizeOpen && (
-                <div className="absolute left-0 top-full z-10 mt-2 flex gap-2 border border-black bg-white p-2 shadow-sm">
-                  {SELECTOR_OPTIONS.map((n) => {
-                    const isSelected = selectorCookie === n;
-                    return (
-                      <button
-                        key={n}
-                        type="button"
-                        onClick={() => selectCookie(n)}
-                        aria-label={`Use cookie ${n} as the page selector`}
-                        aria-pressed={isSelected}
-                        className={`relative h-11 w-11 shrink-0 overflow-hidden bg-white transition-colors ${
-                          isSelected
-                            ? "border-2 border-black"
-                            : "border border-black/20 hover:border-black/50"
-                        }`}
-                      >
-                        <Image
-                          src={`${BASE_PATH}/images/cookies/cookie-${n}.png`}
-                          alt=""
-                          fill
-                          sizes="44px"
-                          className="object-contain"
-                        />
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
+              <div
+                className={`absolute left-0 top-full z-10 mt-2 flex gap-2 border border-black bg-white p-2 shadow-sm transition-opacity duration-200 ${
+                  customizeOpen ? "opacity-100" : "pointer-events-none opacity-0"
+                }`}
+              >
+                {SELECTOR_OPTIONS.map((n) => {
+                  const isSelected = selectorCookie === n;
+                  return (
+                    <button
+                      key={n}
+                      type="button"
+                      onClick={() => selectCookie(n)}
+                      aria-label={`Use cookie ${n} as the page selector`}
+                      aria-pressed={isSelected}
+                      className={`relative h-11 w-11 shrink-0 overflow-hidden bg-white transition-opacity ${
+                        isSelected ? "opacity-100" : "opacity-40 hover:opacity-70"
+                      }`}
+                    >
+                      <Image
+                        src={`${BASE_PATH}/images/cookies/cookie-${n}.png`}
+                        alt=""
+                        fill
+                        sizes="44px"
+                        className="object-contain"
+                      />
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </nav>
+
+            <div
+              className={`col-start-1 row-start-1 flex flex-col gap-4 transition-all duration-300 ease-in-out ${
+                isProjectMode
+                  ? "translate-y-0 opacity-100"
+                  : "pointer-events-none translate-y-3 opacity-0"
+              }`}
+            >
+              {projectNav ? (
+                <>
+                  <h2 className="text-[15px] font-semibold text-foreground">
+                    {projectNav.title}
+                  </h2>
+                  <nav className="flex flex-col gap-3.5">
+                    {projectNav.sections.map((section) => {
+                      const isActive = activeSectionId === section.id;
+                      return (
+                        <a
+                          key={section.id}
+                          href={`#${section.id}`}
+                          className="group flex items-center gap-2.5 text-[15px]"
+                        >
+                          <span
+                            className={`relative flex h-3.5 w-3.5 items-center justify-center shrink-0 transition-opacity duration-200 ${
+                              isActive ? "opacity-100" : "opacity-0 group-hover:opacity-40"
+                            }`}
+                          >
+                            <Image
+                              src={`${BASE_PATH}/images/cookies/cookie-${selectorCookie}.png`}
+                              alt=""
+                              width={64}
+                              height={64}
+                              className="h-3.5 w-3.5 object-contain"
+                            />
+                          </span>
+                          <span
+                            className={`transition-colors ${
+                              isActive
+                                ? "font-semibold text-foreground"
+                                : "text-foreground/60 group-hover:text-foreground"
+                            }`}
+                          >
+                            {section.label}
+                          </span>
+                        </a>
+                      );
+                    })}
+                  </nav>
+                </>
+              ) : null}
+            </div>
+          </div>
         </div>
 
-        <div className="flex items-end justify-between">
-          <CookieButton />
+        <div className="flex items-center">
+          <div
+            className={`overflow-hidden transition-[max-width,opacity] duration-300 ease-in-out ${
+              isProjectMode ? "max-w-0 opacity-0" : "max-w-[5rem] opacity-100"
+            }`}
+          >
+            <CookieButton />
+          </div>
 
-          <div className="flex items-center gap-4 pb-1">
+          <div
+            aria-hidden="true"
+            className={`transition-[flex-grow] duration-300 ease-in-out ${
+              isProjectMode ? "grow-0" : "grow"
+            }`}
+          />
+
+          <div className="flex items-center gap-4">
             <a
-              href="#"
+              href="https://www.linkedin.com/in/mila-scholz-a4094730b/"
+              target="_blank"
+              rel="noopener noreferrer"
               aria-label="LinkedIn"
               className="text-foreground/70 hover:text-foreground transition-colors"
             >
               <LinkedInIcon className="h-5 w-5" />
             </a>
             <a
-              href="mailto:milacscholz@gmail.com"
+              href="mailto:mscholz5@uwo.ca"
               aria-label="Email"
               className="text-foreground/70 hover:text-foreground transition-colors"
             >

@@ -5,6 +5,10 @@ export type Project = {
   gradient: string;
   video?: string;
   poster?: string;
+  tag?: string;
+  link?: string;
+  linkLabel?: string;
+  linkExternal?: boolean;
 };
 
 export const projects: Project[] = [
@@ -15,18 +19,27 @@ export const projects: Project[] = [
     gradient: "linear-gradient(135deg, #7c3aed 0%, #c084fc 55%, #f0abfc 100%)",
     video: "/videos/discify-showcase.mp4",
     poster: "/images/discify-poster.jpg",
+    tag: "Personal Project",
+    link: "/projects/discify",
+    linkLabel: "View case study",
   },
   {
     id: "project-two",
-    title: "project two",
+    title: "slouchy",
     subheading: "Case study coming soon",
     gradient: "linear-gradient(135deg, #0ea5e9 0%, #60a5fa 60%, #bfdbfe 100%)",
+    video: "/videos/slouchy-showreel.mp4",
+    tag: "Cornell UX Designathon Winner",
+    link: "https://devpost.com/software/slouchy",
+    linkLabel: "See on Devpost",
+    linkExternal: true,
   },
   {
     id: "project-three",
-    title: "project three",
+    title: "Humanoid Robot Arm Assembly",
     subheading: "Case study coming soon",
     gradient: "linear-gradient(135deg, #059669 0%, #34d399 55%, #a7f3d0 100%)",
+    video: "/videos/humanoid-robot-arm-assembly.mp4",
   },
   {
     id: "project-four",

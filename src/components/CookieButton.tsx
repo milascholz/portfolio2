@@ -4,13 +4,41 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import type { CSSProperties, MouseEvent } from "react";
 import { BASE_PATH } from "@/lib/base-path";
+import { incrementCookieClicks } from "@/lib/cookie-counter";
+import CalloutTail from "./CalloutTail";
 
 type Bite = { cx: number; cy: number; r: number };
+type BiteCircle = { cx: number; cy: number; r: number };
 
 const MAX_BITES = 4;
 const COOKIE_RADIUS = 41; // the cookie's edge, as a % of the container
-const BITE_RADIUS = 17; // % of the container
+const BITE_RADIUS = 24; // % of the container
 const BITE_DEPTH = 0.92; // how far inside the edge the bite center sits
+const CLICK_HINT_DELAY_MS = 10000;
+
+// A bite is rendered as a cluster of overlapping circles (a core plus
+// bumps around it) instead of one smooth circle, so its edge reads as a
+// ragged, bitten-into shape rather than a perfect hole.
+const BITE_LOBES = 9;
+const BITE_CORE_RATIO = 0.62;
+const BITE_LOBE_RATIO = 0.48;
+const BITE_LOBE_DISTANCE_RATIO = 0.68;
+
+function biteCircles(bite: Bite): BiteCircle[] {
+  const circles: BiteCircle[] = [
+    { cx: bite.cx, cy: bite.cy, r: bite.r * BITE_CORE_RATIO },
+  ];
+  for (let i = 0; i < BITE_LOBES; i++) {
+    const angle = (i / BITE_LOBES) * Math.PI * 2 + bite.cx * 0.13;
+    const wobble = 0.85 + 0.3 * Math.sin(i * 2.4 + bite.cy);
+    circles.push({
+      cx: bite.cx + Math.cos(angle) * bite.r * BITE_LOBE_DISTANCE_RATIO,
+      cy: bite.cy + Math.sin(angle) * bite.r * BITE_LOBE_DISTANCE_RATIO,
+      r: bite.r * BITE_LOBE_RATIO * wobble,
+    });
+  }
+  return circles;
+}
 
 // Only the cookie numbers that actually exist in public/images/cookies —
 // keep this in sync if images are added or removed there.
@@ -34,9 +62,19 @@ export default function CookieButton() {
   const [cookieSrc, setCookieSrc] = useState(COOKIE_IMAGES[0]);
   const [bites, setBites] = useState<Bite[]>([]);
   const [isPopping, setIsPopping] = useState(false);
+  const [showClickHint, setShowClickHint] = useState(false);
+  const [clickCount, setClickCount] = useState<number | null>(null);
   const imageRef = useRef<HTMLDivElement>(null);
   const resetTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const popTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hasClickedRef = useRef(false);
+
+  useEffect(() => {
+    const hintTimeout = setTimeout(() => {
+      if (!hasClickedRef.current) setShowClickHint(true);
+    }, CLICK_HINT_DELAY_MS);
+    return () => clearTimeout(hintTimeout);
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -46,7 +84,12 @@ export default function CookieButton() {
   }, []);
 
   function handleClick(event: MouseEvent<HTMLButtonElement>) {
+    hasClickedRef.current = true;
+    setShowClickHint(false);
     setIsPopping(true);
+    incrementCookieClicks()
+      .then((count) => setClickCount(count))
+      .catch(() => {});
     if (popTimeout.current) clearTimeout(popTimeout.current);
     popTimeout.current = setTimeout(() => setIsPopping(false), 180);
 
@@ -87,11 +130,12 @@ export default function CookieButton() {
   const isFullyEaten = bites.length >= MAX_BITES;
 
   const maskImage =
-    !isFullyEaten && bites.length > 0
+    bites.length > 0
       ? bites
+          .flatMap(biteCircles)
           .map(
-            (b) =>
-              `radial-gradient(circle at ${b.cx}% ${b.cy}%, transparent 0, transparent ${b.r}%, black ${b.r}%)`
+            (c) =>
+              `radial-gradient(circle at ${c.cx}% ${c.cy}%, transparent 0, transparent ${c.r}%, black ${c.r}%)`
           )
           .join(", ")
       : undefined;
@@ -108,9 +152,8 @@ export default function CookieButton() {
           WebkitMaskRepeat: "no-repeat",
           maskSize: "100% 100%",
           WebkitMaskSize: "100% 100%",
-          ...(bites.length > 1
-            ? { maskComposite: "intersect", WebkitMaskComposite: "intersect" }
-            : {}),
+          maskComposite: "intersect",
+          WebkitMaskComposite: "intersect",
         }
       : {}),
   };
@@ -120,7 +163,7 @@ export default function CookieButton() {
       type="button"
       onClick={handleClick}
       aria-label="A cookie — click to take a bite"
-      className="block w-20 shrink-0 focus:outline-none"
+      className="relative block w-20 shrink-0 focus:outline-none"
     >
       <div ref={imageRef} className="relative aspect-square" style={style}>
         <Image
@@ -130,6 +173,23 @@ export default function CookieButton() {
           sizes="80px"
           className="object-contain"
         />
+      </div>
+
+      {clickCount !== null ? (
+        <div className="mt-1 text-center text-[10px] leading-tight text-black/60">
+          {clickCount.toLocaleString()} cookie clicks
+        </div>
+      ) : null}
+
+      <div
+        className={`pointer-events-none absolute bottom-full left-1/2 z-10 flex -translate-x-1/2 flex-col items-center pb-2 transition-opacity duration-300 ${
+          showClickHint ? "opacity-100" : "opacity-0"
+        }`}
+      >
+        <div className="-mb-px whitespace-nowrap border border-black bg-white px-2 py-1 text-xs shadow-sm">
+          click me!
+        </div>
+        <CalloutTail direction="down" />
       </div>
     </button>
   );
