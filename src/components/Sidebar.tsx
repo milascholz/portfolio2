@@ -33,7 +33,7 @@ function normalizePath(path: string) {
   return path !== "/" && path.endsWith("/") ? path.slice(0, -1) : path;
 }
 
-const SELECTOR_OPTIONS = [1, 7, 38, 13];
+const SELECTOR_OPTIONS = [1, 7, 38, 34];
 const SELECTOR_STORAGE_KEY = "mila-portfolio:selector-cookie";
 const CUSTOMIZE_CLOSE_DELAY_MS = 300;
 
@@ -116,26 +116,14 @@ export default function Sidebar() {
           <div>
             <h1 className="flex items-baseline overflow-hidden text-2xl font-bold tracking-tight text-black">
               <span>m</span>
-              <span
-                className={`inline-block overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-500 ease-in-out ${
-                  isProjectMode ? "max-w-0 opacity-0" : "max-w-[2.5rem] opacity-100"
-                }`}
-              >
+              <span className="inline-block max-w-[2.5rem] overflow-hidden whitespace-nowrap opacity-100">
                 ila
               </span>
-              <span
-                className={`inline-block overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-500 ease-in-out ${
-                  isProjectMode ? "max-w-0 opacity-0" : "max-w-[0.4rem] opacity-100"
-                }`}
-              >
+              <span className="inline-block max-w-[0.4rem] overflow-hidden whitespace-nowrap opacity-100">
                 &nbsp;
               </span>
               <span>s</span>
-              <span
-                className={`inline-block overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-500 ease-in-out ${
-                  isProjectMode ? "max-w-0 opacity-0" : "max-w-[6rem] opacity-100"
-                }`}
-              >
+              <span className="inline-block max-w-[6rem] overflow-hidden whitespace-nowrap opacity-100">
                 cholz
               </span>
             </h1>
@@ -337,7 +325,7 @@ export default function Sidebar() {
             }`}
           />
 
-          <div className="flex items-center gap-4">
+          <div className="flex translate-y-1.5 items-center gap-4">
             <a
               href="https://www.linkedin.com/in/mila-scholz-a4094730b/"
               target="_blank"

@@ -15,7 +15,7 @@ export const projects: Project[] = [
   {
     id: "discify",
     title: "Discify",
-    subheading: "Custom Spicetify theme & UI design system",
+    subheading: "Spotify extension gamifying album listens",
     gradient: "linear-gradient(135deg, #7c3aed 0%, #c084fc 55%, #f0abfc 100%)",
     video: "/videos/discify-showcase.mp4",
     poster: "/images/discify-poster.jpg",
@@ -26,7 +26,7 @@ export const projects: Project[] = [
   {
     id: "project-two",
     title: "Slouchy",
-    subheading: "Case study coming soon",
+    subheading: "posture-correcting macOS menu bar app",
     gradient: "linear-gradient(135deg, #0ea5e9 0%, #60a5fa 60%, #bfdbfe 100%)",
     video: "/videos/slouchy-showreel.mp4",
     tag: "Cornell UX Designathon Winner",
@@ -37,9 +37,10 @@ export const projects: Project[] = [
   {
     id: "project-three",
     title: "Humanoid Robot Arm Assembly",
-    subheading: "Case study coming soon",
+    subheading: "Arm subsystem for humanoid AI teaching assistant robot",
     gradient: "linear-gradient(135deg, #059669 0%, #34d399 55%, #a7f3d0 100%)",
     video: "/videos/humanoid-robot-arm-assembly.mp4",
+    tag: "Commissioned Engineering Design Project",
     link: "/projects/humanoid-robot-arm-assembly",
     linkLabel: "View case study",
   },
