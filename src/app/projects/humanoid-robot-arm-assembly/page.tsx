@@ -4,30 +4,29 @@ import Link from "next/link";
 import { BASE_PATH } from "@/lib/base-path";
 import { useRegisterProjectNav } from "@/context/ProjectNavContext";
 
-const TAGS = ["Personal Project", "Shipped"];
+const TAGS = ["Robotics"];
 
 const SECTIONS = [
   { id: "overview", label: "Overview" },
-  { id: "design-system", label: "Design System" },
+  { id: "approach", label: "Approach" },
   { id: "highlights", label: "Highlights" },
 ];
 
 const ROLE_DETAILS = [
-  { label: "Role", value: "Designer & developer" },
-  { label: "Team", value: "Solo project" },
+  { label: "Role", value: "Coming soon" },
+  { label: "Team", value: "Coming soon" },
   { label: "Timeline", value: "Coming soon" },
-  { label: "Skills", value: "UI design, design systems, front-end development" },
+  { label: "Skills", value: "Coming soon" },
 ];
 
-export default function DiscifyPage() {
-  useRegisterProjectNav("Discify", SECTIONS);
+export default function HumanoidRobotArmAssemblyPage() {
+  useRegisterProjectNav("Humanoid Robot Arm Assembly", SECTIONS);
 
   return (
     <div>
       <video
         className="aspect-[40/9] w-full border border-black object-cover"
-        src={`${BASE_PATH}/videos/discify-showcase.mp4`}
-        poster={`${BASE_PATH}/images/discify-poster.jpg`}
+        src={`${BASE_PATH}/videos/humanoid-robot-arm-assembly.mp4`}
         autoPlay
         loop
         muted
@@ -47,11 +46,11 @@ export default function DiscifyPage() {
           ))}
         </div>
 
-        <h1 className="mt-4 text-4xl font-bold tracking-tight text-foreground">Discify</h1>
+        <h1 className="mt-4 text-4xl font-bold tracking-tight text-foreground">
+          Humanoid Robot Arm Assembly
+        </h1>
         <p className="mt-3 leading-relaxed text-foreground/70">
-          A custom Spicetify theme and UI design system built to reimagine what
-          Spotify&apos;s desktop client could look and feel like — from color
-          tokens and typography through to fully themed components.
+          This case study is coming soon.
         </p>
 
         <div className="mt-8 grid grid-cols-2 gap-6 border border-black bg-black p-6 text-white sm:grid-cols-4">
@@ -68,24 +67,24 @@ export default function DiscifyPage() {
         <section id="overview" className="mt-14 scroll-mt-8">
           <h2 className="text-2xl font-semibold text-foreground">Overview</h2>
           <p className="mt-3 leading-relaxed text-foreground/70">
-            This is a placeholder for the discify overview. Summarize the
+            This is a placeholder for the project overview. Summarize the
             problem, goals, and approach here.
           </p>
         </section>
 
-        <section id="design-system" className="mt-14 scroll-mt-8">
-          <h2 className="text-2xl font-semibold text-foreground">Design System</h2>
+        <section id="approach" className="mt-14 scroll-mt-8">
+          <h2 className="text-2xl font-semibold text-foreground">Approach</h2>
           <p className="mt-3 leading-relaxed text-foreground/70">
-            This is a placeholder for the design system section. Walk through
-            the color system, typography, and components here.
+            This is a placeholder for the approach section. Walk through the
+            design, engineering, and build process here.
           </p>
         </section>
 
         <section id="highlights" className="mt-14 scroll-mt-8">
           <h2 className="text-2xl font-semibold text-foreground">Highlights</h2>
           <p className="mt-3 leading-relaxed text-foreground/70">
-            This is a placeholder for highlights. Show off key screens,
-            before/after comparisons, or standout details here.
+            This is a placeholder for highlights. Show off key moments,
+            results, or standout details here.
           </p>
         </section>
 

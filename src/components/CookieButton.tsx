@@ -165,7 +165,7 @@ export default function CookieButton() {
       aria-label="A cookie — click to take a bite"
       className="relative block w-20 shrink-0 focus:outline-none"
     >
-      <div ref={imageRef} className="relative aspect-square" style={style}>
+      <div ref={imageRef} className="relative -mt-3 aspect-square" style={style}>
         <Image
           src={`${BASE_PATH}${cookieSrc}`}
           alt="A cookie"
@@ -175,11 +175,13 @@ export default function CookieButton() {
         />
       </div>
 
-      {clickCount !== null ? (
-        <div className="mt-1 text-center text-[10px] leading-tight text-black/60">
-          {clickCount.toLocaleString()} cookie clicks
-        </div>
-      ) : null}
+      <div
+        className={`mt-1 min-h-[24px] text-center text-[10px] leading-tight text-black/60 ${
+          clickCount !== null ? "visible" : "invisible"
+        }`}
+      >
+        {clickCount !== null ? `${clickCount.toLocaleString()} all time cookie clicks` : null}
+      </div>
 
       <div
         className={`pointer-events-none absolute bottom-full left-1/2 z-10 flex -translate-x-1/2 flex-col items-center pb-2 transition-opacity duration-300 ${

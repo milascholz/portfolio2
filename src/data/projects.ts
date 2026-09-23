@@ -14,7 +14,7 @@ export type Project = {
 export const projects: Project[] = [
   {
     id: "discify",
-    title: "discify",
+    title: "Discify",
     subheading: "Custom Spicetify theme & UI design system",
     gradient: "linear-gradient(135deg, #7c3aed 0%, #c084fc 55%, #f0abfc 100%)",
     video: "/videos/discify-showcase.mp4",
@@ -25,7 +25,7 @@ export const projects: Project[] = [
   },
   {
     id: "project-two",
-    title: "slouchy",
+    title: "Slouchy",
     subheading: "Case study coming soon",
     gradient: "linear-gradient(135deg, #0ea5e9 0%, #60a5fa 60%, #bfdbfe 100%)",
     video: "/videos/slouchy-showreel.mp4",
@@ -40,6 +40,8 @@ export const projects: Project[] = [
     subheading: "Case study coming soon",
     gradient: "linear-gradient(135deg, #059669 0%, #34d399 55%, #a7f3d0 100%)",
     video: "/videos/humanoid-robot-arm-assembly.mp4",
+    link: "/projects/humanoid-robot-arm-assembly",
+    linkLabel: "View case study",
   },
   {
     id: "project-four",
