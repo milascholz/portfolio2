@@ -192,8 +192,8 @@ export default function MeshPage() {
             <p>
               It collects the missing vendor data, runs the team&apos;s existing accrual policies, and
               generates journal entries with a full audit trail. When they launched a new website,
-              co-founder and CEO Erin Kim posted on LinkedIn asking for feedback, with the best submission
-              winning a prize. I sent a 12-point annotated review as a PDF.
+              co-founder and CEO Erin Kim posted on LinkedIn asking for feedback. I sent a 12-point
+              annotated review as a PDF.
             </p>
           </Prose>
           <div className="mt-6 overflow-hidden border border-black/15 bg-black/[0.035] px-8 pt-8">
@@ -285,14 +285,14 @@ export default function MeshPage() {
             </div>
           ))}
 
-          <div className="mt-10 w-full max-w-[820px] border border-black">
-            <div className="border-b border-black bg-black px-5 py-3">
-              <p className="text-sm font-semibold text-white">Full annotated review (PDF)</p>
-            </div>
+          <div className="mt-10 w-full max-w-[700px] border border-black/15 bg-black/[0.035] p-6">
+            <p className="text-xs font-semibold uppercase tracking-widest text-foreground/40">
+              Full Annotated Review (PDF)
+            </p>
             <iframe
-              src={`${BASE_PATH}/files/mesh-website-feedback.pdf#page=2`}
+              src={`${BASE_PATH}/files/mesh-website-feedback.pdf#page=2&toolbar=0&navpanes=0`}
               title="Mesh website feedback — full annotated PDF review"
-              className="h-[820px] w-full"
+              className="mt-4 aspect-[4/3] w-full border border-black/10"
             />
           </div>
         </section>
