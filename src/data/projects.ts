@@ -26,7 +26,7 @@ export const projects: Project[] = [
   {
     id: "project-two",
     title: "Slouchy",
-    subheading: "posture-correcting macOS menu bar app",
+    subheading: "Posture-correcting macOS menu bar app",
     gradient: "linear-gradient(135deg, #0ea5e9 0%, #60a5fa 60%, #bfdbfe 100%)",
     video: "/videos/slouchy-showreel.mp4",
     tag: "Cornell UX Designathon Winner",
