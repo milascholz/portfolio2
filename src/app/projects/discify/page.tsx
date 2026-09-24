@@ -50,6 +50,75 @@ function MediaPlaceholder({ type, label }: { type: "Visual" | "Video"; label: st
   );
 }
 
+function Figure({ src, alt, caption }: { src: string; alt: string; caption: string }) {
+  return (
+    <figure className="mt-6 w-full overflow-hidden border border-black/15 bg-black/[0.035]">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={`${BASE_PATH}${src}`} alt={alt} className="w-full" />
+      <figcaption className="border-t border-black/15 px-4 py-2 text-xs uppercase tracking-widest text-foreground/45">
+        {caption}
+      </figcaption>
+    </figure>
+  );
+}
+
+function MediaPair({
+  videoSrc,
+  videoCaption,
+  videoAspect,
+  imageSrc,
+  imageAlt,
+  imageCaption,
+  imageAspect,
+}: {
+  videoSrc: string;
+  videoCaption: string;
+  videoAspect?: string;
+  imageSrc: string;
+  imageAlt: string;
+  imageCaption: string;
+  imageAspect?: string;
+}) {
+  return (
+    <div className="mt-6 border border-black/15 bg-black/[0.035] p-6">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div>
+          <video
+            className="w-full object-cover object-left"
+            style={videoAspect ? { aspectRatio: videoAspect } : undefined}
+            src={`${BASE_PATH}${videoSrc}`}
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="metadata"
+          />
+          <p className="mt-2 text-xs text-foreground/50">{videoCaption}</p>
+        </div>
+        <div>
+          {imageAspect ? (
+            <div
+              className="w-full overflow-hidden bg-[#131313]"
+              style={{ aspectRatio: imageAspect }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`${BASE_PATH}${imageSrc}`}
+                alt={imageAlt}
+                className="h-full w-full object-contain object-top"
+              />
+            </div>
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={`${BASE_PATH}${imageSrc}`} alt={imageAlt} className="w-full" />
+          )}
+          <p className="mt-2 text-xs text-foreground/50">{imageCaption}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function CaptionPlaceholder({ label }: { label: string }) {
   return (
     <p className="mt-2 max-w-[700px] text-xs italic leading-relaxed text-foreground/40">
@@ -65,11 +134,6 @@ function Callout({ children }: { children: ReactNode }) {
     </div>
   );
 }
-
-function SectionDivider() {
-  return <hr className="mt-16 border-t border-black/10" />;
-}
-
 type Decision = {
   title: string;
   decision: string;
@@ -516,8 +580,6 @@ export default function DiscifyPage() {
           </Prose>
         </section>
 
-        <SectionDivider />
-
         {/* Problem */}
         <section id="problem" className="mt-16 scroll-mt-8">
           <Eyebrow>Problem</Eyebrow>
@@ -550,8 +612,6 @@ export default function DiscifyPage() {
           </div>
         </section>
 
-        <SectionDivider />
-
         {/* Solution */}
         <section id="solution" className="mt-16 scroll-mt-8">
           <Eyebrow>Solution</Eyebrow>
@@ -566,10 +626,12 @@ export default function DiscifyPage() {
               <li>In-progress albums show up once you've made a real start</li>
             </ul>
           </Prose>
-          <MediaPlaceholder type="Visual" label="Album page disc + profile shelf" />
+          <Figure
+            src="/images/discify/discify-profile-shelf.png"
+            alt="Discs collected page showing All, Collected, and In progress filter pills above six discs, each with the album's cover art, title, and artist"
+            caption="Profile shelf of earned discs, with collected / in-progress filters"
+          />
         </section>
-
-        <SectionDivider />
 
         {/* Design Process */}
         <section id="design-process" className="mt-16 scroll-mt-8">
@@ -591,13 +653,77 @@ export default function DiscifyPage() {
               <h3 className="mt-10 max-w-[700px] text-xl font-semibold leading-snug text-foreground">
                 {step.title}
               </h3>
-              <MediaPlaceholder type="Visual" label={step.visualLabel} />
-              <CaptionPlaceholder label={step.captionLabel} />
+              {step.title === "2. Functional MVP" ? (
+                <>
+                  <Prose>
+                    <p>
+                      Completion tracking, the track dropdown, and the rotation animation worked, but
+                      every disc looked the same, lacked album art, and singles like &quot;Do That
+                      Again&quot; still earned their own disc — which led to Decision 2.
+                    </p>
+                  </Prose>
+                  <MediaPair
+                    videoSrc="/videos/discify-mvp-demo.mp4"
+                    videoCaption="First edition of tracking and designs in albums"
+                    imageSrc="/images/discify/discify-mvp-screenshot.png"
+                    imageAspect="558 / 438"
+                    imageAlt="Early functional build showing collected discs with no visual styling yet"
+                    imageCaption="First edition of collected discs design"
+                  />
+                </>
+              ) : step.title === "3. Designed" ? (
+                <>
+                  <Prose>
+                    <p>
+                      With the logic proven, I moved into Figma to redesign the disc from a placeholder
+                      sphere into a flat CD with real album art.
+                    </p>
+                  </Prose>
+                  <div className="mt-6 border border-black/15 bg-black/[0.035] p-6">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={`${BASE_PATH}/images/discify/discify-disc-redesign.png`}
+                      alt="Four stages of the disc design in Figma: a 3D gradient sphere, a blank CD, a first cover-art version, and the refined cover-art disc"
+                      className="w-full"
+                    />
+                    <p className="mt-2 text-xs text-foreground/50">
+                      Redesigning the disc in Figma — from a 3D gradient sphere, to a flat CD base, to
+                      the final cover-art disc with title overlay.
+                    </p>
+                  </div>
+                </>
+              ) : step.title === "4. Final" ? (
+                <>
+                  <Prose>
+                    <p>
+                      The shipped version pairs the redesigned disc with real album art across the
+                      tracking UI and the profile shelf.
+                    </p>
+                  </Prose>
+                  <MediaPair
+                    videoSrc="/videos/discify-designed-demo.mp4"
+                    videoCaption="Final tracking and designs in albums"
+                    videoAspect="1676 / 1386"
+                    imageSrc="/images/discify/discify-designed-screenshot.png"
+                    imageAlt="Discs collected page with album art, showing collected and in-progress filter pills above eight discs"
+                    imageCaption="Final collected discs design"
+                  />
+                </>
+              ) : (
+                <>
+                  <Prose>
+                    <p>
+                      Before writing any code, I sketched the core screens by hand to work out badge
+                      placement and the disc shape.
+                    </p>
+                  </Prose>
+                  <MediaPlaceholder type="Visual" label={step.visualLabel} />
+                  <CaptionPlaceholder label={step.captionLabel} />
+                </>
+              )}
             </div>
           ))}
         </section>
-
-        <SectionDivider />
 
         {/* Design Decisions */}
         <section id="design-decisions" className="mt-16 scroll-mt-8">
@@ -613,8 +739,6 @@ export default function DiscifyPage() {
           ))}
         </section>
 
-        <SectionDivider />
-
         {/* Exploring Placement */}
         <section id="exploring-placement" className="mt-16 scroll-mt-8">
           <Eyebrow>Exploring Placement</Eyebrow>
@@ -628,8 +752,6 @@ export default function DiscifyPage() {
           </div>
           <MediaPlaceholder type="Visual" label="Search mockup (rejected) vs. album page (chosen)" />
         </section>
-
-        <SectionDivider />
 
         {/* Core Flows */}
         <section id="core-flows" className="mt-16 scroll-mt-8">
@@ -667,8 +789,6 @@ export default function DiscifyPage() {
           <MediaPlaceholder type="Video" label="Show all + filters" />
         </section>
 
-        <SectionDivider />
-
         {/* Outcome */}
         <section id="outcome" className="mt-16 scroll-mt-8">
           <Eyebrow>Outcome</Eyebrow>
@@ -686,8 +806,6 @@ export default function DiscifyPage() {
             </p>
           </Prose>
         </section>
-
-        <SectionDivider />
 
         {/* Reflection */}
         <section id="reflection" className="mt-16 scroll-mt-8">

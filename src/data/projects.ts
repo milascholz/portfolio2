@@ -36,8 +36,8 @@ export const projects: Project[] = [
   },
   {
     id: "project-three",
-    title: "Robotic Arm Assembly",
-    subheading: "Part of a commissioned humanoid AI TA robot",
+    title: "Baker Bot: Humanoid Robot Arms",
+    subheading: "Arms for a commissioned humanoid AI teaching assistant robot",
     gradient: "linear-gradient(135deg, #059669 0%, #34d399 55%, #a7f3d0 100%)",
     video: "/videos/humanoid-robot-arm-assembly.mp4",
     tag: "Engineering Design & Manufacturing",

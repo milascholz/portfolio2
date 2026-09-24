@@ -5,7 +5,7 @@ import Image from "next/image";
 import type { CSSProperties, MouseEvent } from "react";
 import { BASE_PATH } from "@/lib/base-path";
 import { incrementCookieClicks } from "@/lib/cookie-counter";
-import CalloutTail from "./CalloutTail";
+import ClickMeCallout from "./ClickMeCallout";
 
 type Bite = { cx: number; cy: number; r: number };
 type BiteCircle = { cx: number; cy: number; r: number };
@@ -184,14 +184,11 @@ export default function CookieButton() {
       </div>
 
       <div
-        className={`pointer-events-none absolute bottom-full left-1/2 z-10 flex -translate-x-1/2 flex-col items-center pb-2 transition-opacity duration-300 ${
+        className={`pointer-events-none absolute bottom-full left-1/2 z-10 -translate-x-1/2 pb-2 transition-opacity duration-300 ${
           showClickHint ? "opacity-100 animate-soft-bounce" : "opacity-0"
         }`}
       >
-        <div className="-mb-px whitespace-nowrap border border-black bg-white px-2 py-1 text-xs shadow-sm">
-          click me!
-        </div>
-        <CalloutTail direction="down" />
+        <ClickMeCallout />
       </div>
     </button>
   );

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowLeft, Mail } from "lucide-react";
 import CookieButton from "./CookieButton";
-import CalloutTail from "./CalloutTail";
+import CalloutBox from "./CalloutBox";
 import { BASE_PATH } from "@/lib/base-path";
 import { useProjectNav } from "@/context/ProjectNavContext";
 
@@ -213,44 +213,39 @@ export default function Sidebar() {
                   }`}
                 >
                   customize
-                  <div
-                    className={`pointer-events-none absolute left-1/2 top-full z-20 -translate-x-1/2 pt-px transition-opacity duration-200 ${
-                      customizeOpen ? "opacity-100" : "opacity-0"
-                    }`}
-                  >
-                    <CalloutTail direction="up" />
-                  </div>
                 </span>
               </div>
 
               <div
-                className={`absolute left-0 top-full z-10 mt-2 flex gap-2 border border-black bg-white p-2 shadow-sm transition-opacity duration-200 ${
+                className={`absolute left-0 top-full z-10 transition-opacity duration-200 ${
                   customizeOpen ? "opacity-100" : "pointer-events-none opacity-0"
                 }`}
               >
-                {SELECTOR_OPTIONS.map((n) => {
-                  const isSelected = selectorCookie === n;
-                  return (
-                    <button
-                      key={n}
-                      type="button"
-                      onClick={() => selectCookie(n)}
-                      aria-label={`Use cookie ${n} as the page selector`}
-                      aria-pressed={isSelected}
-                      className={`relative h-11 w-11 shrink-0 overflow-hidden bg-white transition-opacity ${
-                        isSelected ? "opacity-100" : "opacity-40 hover:opacity-70"
-                      }`}
-                    >
-                      <Image
-                        src={`${BASE_PATH}/images/cookies/cookie-${n}.png`}
-                        alt=""
-                        fill
-                        sizes="44px"
-                        className="object-contain"
-                      />
-                    </button>
-                  );
-                })}
+                <CalloutBox width={218} height={62} tailCenterX={59} contentClassName="gap-2">
+                  {SELECTOR_OPTIONS.map((n) => {
+                    const isSelected = selectorCookie === n;
+                    return (
+                      <button
+                        key={n}
+                        type="button"
+                        onClick={() => selectCookie(n)}
+                        aria-label={`Use cookie ${n} as the page selector`}
+                        aria-pressed={isSelected}
+                        className={`relative h-11 w-11 shrink-0 overflow-hidden bg-white transition-opacity ${
+                          isSelected ? "opacity-100" : "opacity-40 hover:opacity-70"
+                        }`}
+                      >
+                        <Image
+                          src={`${BASE_PATH}/images/cookies/cookie-${n}.png`}
+                          alt=""
+                          fill
+                          sizes="44px"
+                          className="object-contain"
+                        />
+                      </button>
+                    );
+                  })}
+                </CalloutBox>
               </div>
             </div>
           </nav>

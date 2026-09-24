@@ -34,26 +34,24 @@ function Prose({ children }: { children: ReactNode }) {
   return <div className="mt-4 max-w-[700px] space-y-4 leading-relaxed text-foreground/70">{children}</div>;
 }
 
-function MediaPlaceholder({ type, label }: { type: "Visual" | "Video"; label: string }) {
+function Figure({ src, alt, caption }: { src: string; alt: string; caption: string }) {
   return (
-    <figure className="mt-6 flex min-h-[200px] w-full flex-col items-center justify-center gap-2 border border-black/15 bg-black/[0.035] p-8 text-center">
-      <span className="text-xs font-semibold uppercase tracking-widest text-foreground/30">
-        {type} placeholder
-      </span>
-      <figcaption className="text-xs uppercase tracking-widest text-foreground/45">{label}</figcaption>
+    <figure className="mt-6 w-full overflow-hidden border border-black/15 bg-black/[0.035]">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={`${BASE_PATH}${src}`} alt={alt} className="w-full" />
+      <figcaption className="border-t border-black/15 px-4 py-2 text-xs uppercase tracking-widest text-foreground/45">
+        {caption}
+      </figcaption>
     </figure>
   );
 }
-
-function SectionDivider() {
-  return <hr className="mt-16 border-t border-black/10" />;
-}
-
 type Finding = {
   title: string;
   body: string;
   fix: string;
   visual: string;
+  image: string;
+  imageAlt: string;
 };
 
 const FINDINGS: Finding[] = [
@@ -62,24 +60,32 @@ const FINDINGS: Finding[] = [
     body: "The “Submit” button on the home page and the “Export” button on the product page have shadows, hover states, and click animations, but neither does anything. I tried to click both. Every other graphic on the page is static, so these two set an expectation the site doesn't meet.",
     fix: "Remove the interactive states from demo UI, or make it actually work.",
     visual: "Submit / Export buttons with hover states, neither functional",
+    image: "/images/mesh/mesh-submit-button.png",
+    imageAlt: "Annotated screenshot circling the non-functional Submit button on Mesh's home page",
   },
   {
     title: "Hidden interactions on mobile",
     body: "I first visited on my phone and couldn't tell the product tables scrolled sideways. The tables were also cut off at the bottom of their cards. This matters most on the home page, where those tables are the product demo.",
     fix: "Add a scrollbar or other visual cue, and adjust card spacing.",
     visual: "Mobile product table cut off, no scroll cue",
+    image: "/images/mesh/mesh-mobile-table-cutoff.png",
+    imageAlt: "Three annotated mobile screenshots showing tables cut off at the bottom of cards, with no visual cue that they scroll sideways",
   },
   {
     title: "Content that's hard to scan",
     body: "Every “Mesh vs X” blog post uses the same blue gradient banner, so you can't tell the posts apart at a glance. On the unfiltered blog page, the same posts appear twice: once under “All” and again under “How Mesh Compares.”",
     fix: "Give each banner the competitor's actual logo (I mocked one up). Hide the “How Mesh Compares” section on the unfiltered view but keep it on the filtered ones, where it still does its marketing job.",
     visual: "Blog banner redesign mockup with competitor logo",
+    image: "/images/mesh/mesh-banner-mockup.png",
+    imageAlt: "Mockup showing a generic blue blog banner changed to one with the competitor's actual logo",
   },
   {
     title: "Inconsistency and polish",
     body: "The blog's table of contents highlights where you are in the post, but the privacy policy's doesn't. The sticky filter bar on the blog is see-through on desktop. The mobile header jumps on first scroll. And some mobile components wrap unevenly: squished integration cards, stat labels, a two-line “Save & continue” button.",
     fix: "Reuse the blog's table of contents everywhere, make the filter bar opaque, and tighten mobile copy and layout.",
     visual: "Mobile polish issues — transparent filter bar, header jump, squished cards",
+    image: "/images/mesh/mesh-mobile-polish.png",
+    imageAlt: "Three annotated screenshots showing the see-through filter bar, the mobile header jumping on first scroll, and a squished integration card",
   },
 ];
 
@@ -186,14 +192,15 @@ export default function MeshPage() {
         <section id="overview" className="mt-16 scroll-mt-8">
           <Eyebrow>Overview</Eyebrow>
           <h2 className="mt-2 max-w-[700px] text-3xl font-semibold leading-tight text-foreground">
-            Mesh automates month-end accruals for finance teams.
+            I turned an open call for feedback into a full independent UX audit.
           </h2>
           <Prose>
             <p>
-              It collects the missing vendor data, runs the team&apos;s existing accrual policies, and
-              generates journal entries with a full audit trail. When they launched a new website,
-              co-founder and CEO Erin Kim posted on LinkedIn asking for feedback. I sent a 12-point
-              annotated review as a PDF.
+              Mesh (YC W25) automates month-end accruals for finance teams. When co-founder and CEO Erin
+              Kim posted on LinkedIn asking for feedback on their new website, I treated it as a chance to
+              run a proper heuristic review: walk the entire site as a first-time visitor, catalog every
+              point of friction, and hand back something she could act on immediately. I sent her a
+              12-point annotated PDF; this case study walks through how I got there.
             </p>
           </Prose>
           <div className="mt-6 overflow-hidden border border-black/15 bg-black/[0.035] px-8 pt-8">
@@ -206,25 +213,20 @@ export default function MeshPage() {
           </div>
         </section>
 
-        <SectionDivider />
-
         {/* Problem */}
         <section id="problem" className="mt-16 scroll-mt-8">
           <Eyebrow>Problem</Eyebrow>
           <h2 className="mt-2 max-w-[700px] text-3xl font-semibold leading-tight text-foreground">
-            Mesh sells trust.
+            Unsolicited feedback is easy to ignore.
           </h2>
           <Prose>
             <p>
-              Its pitch to controllers is that every number is traceable and nothing happens without
-              review. So the website has to feel precise too. A button that looks clickable but does
-              nothing, or a table that&apos;s cut off on mobile, works against that pitch before anyone
-              books a demo.
+              Founders get flooded with vague, unprioritized critique. If I wanted mine to actually get
+              read — let alone acted on — it had to be specific, scannable, and ranked by what mattered
+              most, not just a list of nitpicks.
             </p>
           </Prose>
         </section>
-
-        <SectionDivider />
 
         {/* Approach */}
         <section id="approach" className="mt-16 scroll-mt-8">
@@ -243,10 +245,12 @@ export default function MeshPage() {
               ))}
             </ol>
           </Prose>
-          <MediaPlaceholder type="Visual" label="Example annotated screenshot from the PDF review" />
+          <Figure
+            src="/images/mesh/mesh-approach-example.png"
+            alt="Annotated screenshot from the PDF review, circling a spacing issue around the 'Ready for Review' status pill"
+            caption="Example annotated screenshot from the PDF review"
+          />
         </section>
-
-        <SectionDivider />
 
         {/* Key Findings */}
         <section id="key-findings" className="mt-16 scroll-mt-8">
@@ -257,12 +261,10 @@ export default function MeshPage() {
           {FINDINGS.map((finding, index) => (
             <div key={finding.title}>
               <FindingCard index={index} finding={finding} />
-              <MediaPlaceholder type="Visual" label={finding.visual} />
+              <Figure src={finding.image} alt={finding.imageAlt} caption={finding.visual} />
             </div>
           ))}
         </section>
-
-        <SectionDivider />
 
         {/* Framing Feedback */}
         <section id="framing-feedback" className="mt-16 scroll-mt-8">
@@ -280,7 +282,11 @@ export default function MeshPage() {
                 <p>{point.body}</p>
               </Prose>
               {index === 0 ? (
-                <MediaPlaceholder type="Visual" label="Annotated hero screenshot with praise callout" />
+                <Figure
+                  src="/images/mesh/mesh-hero-praise.png"
+                  alt="Screenshot of the Mesh homepage hero, with its rotating blue text, animated product preview, and cursor-revealed grid"
+                  caption="Annotated hero screenshot with praise callout"
+                />
               ) : null}
             </div>
           ))}
@@ -297,8 +303,6 @@ export default function MeshPage() {
           </div>
         </section>
 
-        <SectionDivider />
-
         {/* Outcome */}
         <section id="outcome" className="mt-16 scroll-mt-8">
           <Eyebrow>Outcome</Eyebrow>
@@ -309,8 +313,6 @@ export default function MeshPage() {
             <p>[Swag / follow-up / any changes shipped]</p>
           </Prose>
         </section>
-
-        <SectionDivider />
 
         {/* Reflection */}
         <section id="reflection" className="mt-16 scroll-mt-8">
