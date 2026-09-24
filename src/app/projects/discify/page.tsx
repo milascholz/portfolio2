@@ -1,6 +1,7 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import type { RefObject } from "react";
 import Link from "next/link";
 import { BASE_PATH } from "@/lib/base-path";
 import { useRegisterProjectNav } from "@/context/ProjectNavContext";
@@ -15,7 +16,6 @@ const SECTIONS = [
   { id: "design-decisions", label: "Design Decisions" },
   { id: "exploring-placement", label: "Exploring Placement" },
   { id: "core-flows", label: "Core Flows" },
-  { id: "building-it", label: "Building It" },
   { id: "outcome", label: "Outcome" },
   { id: "reflection", label: "Reflection" },
 ];
@@ -24,7 +24,7 @@ const ROLE_DETAILS = [
   { label: "Role", value: "Product Designer + Developer" },
   { label: "Team", value: "Solo" },
   { label: "Timeline", value: "September 2026" },
-  { label: "Skills", value: "Product & Interaction Design, Product Scoping, AI-Assisted Development" },
+  { label: "Skills", value: "Product & Interaction Design, Product Strategy" },
 ];
 
 function Eyebrow({ children }: { children: ReactNode }) {
@@ -41,13 +41,11 @@ function Prose({ children }: { children: ReactNode }) {
 
 function MediaPlaceholder({ type, label }: { type: "Visual" | "Video"; label: string }) {
   return (
-    <figure className="mt-6 w-full">
-      <div className="flex min-h-[200px] w-full items-center justify-center border border-black/15 bg-black/[0.035] p-8">
-        <span className="text-xs font-semibold uppercase tracking-widest text-foreground/30">
-          {type} placeholder
-        </span>
-      </div>
-      <figcaption className="mt-2 text-xs uppercase tracking-widest text-foreground/45">{label}</figcaption>
+    <figure className="mt-6 flex min-h-[200px] w-full flex-col items-center justify-center gap-2 border border-black/15 bg-black/[0.035] p-8 text-center">
+      <span className="text-xs font-semibold uppercase tracking-widest text-foreground/30">
+        {type} placeholder
+      </span>
+      <figcaption className="text-xs uppercase tracking-widest text-foreground/45">{label}</figcaption>
     </figure>
   );
 }
@@ -85,8 +83,6 @@ const DECISIONS: Decision[] = [
     decision:
       "A track counts once 90% of it is played. An album completes when every track clears that bar.",
     why: "100% is unrealistic, since songs cut off and outros get skipped. Anything lower lets people skip to the end.",
-    rejected:
-      "A 100% requirement, and a single threshold for the whole album that would let you skip entire songs.",
   },
   {
     title: "No discs for singles",
@@ -98,7 +94,8 @@ const DECISIONS: Decision[] = [
     decision:
       "An album shows as in progress after 3 tracks, capped at the album's length for shorter releases.",
     why: "I started with 30% of tracks listened, but a percentage treats albums unevenly. 30% of a 20-track album is 6 songs, a real commitment. 30% of a 7-track album is 2. Short albums landed on the shelf almost by accident, while long ones took an hour to show up. A fixed count means the same effort gets any album on the shelf, no matter its length.",
-    rejected: "Showing every album you've played one song from, since it would clutter the shelf.",
+    rejected:
+      "Showing every album you've played one song from, since it would clutter the shelf and make progress difficult to track for a user.",
   },
   {
     title: "Discs are private, not social",
@@ -111,22 +108,6 @@ const DECISIONS: Decision[] = [
     decision:
       "The disc fills clockwise from grayscale to color, but holds at 80% until every track is complete.",
     why: "The wipe originally filled continuously, so an album at 95% looked finished. At a glance, you couldn't tell a nearly done disc from a complete one, and the payoff of finishing disappeared. Holding at 80% leaves a visible gap until the last track is done. The final fill becomes its own moment, and a full disc always means a finished album.",
-  },
-  {
-    title: "One object for every state",
-    decision: "No separate loading state. The grayscale disc doubles as “not started.”",
-    why: "The same object represents every stage, so nothing swaps in and out and the UI stays calm.",
-  },
-  {
-    title: "Native layouts over custom UI",
-    decision:
-      "The profile shelves reuse Spotify's existing grid and “Show more” pattern, the same as “Top artists this month” and “Public Playlists.”",
-    why: "The feature should read as part of Spotify, not bolted on.",
-  },
-  {
-    title: "Native navigation on “Show all”",
-    decision: "“Show all” works as its own page within Spotify.",
-    why: "Back and forward still work, which matches how the rest of the app behaves.",
   },
   {
     title: "Filter between in-progress and complete",
@@ -160,6 +141,241 @@ function DecisionCard({ index, decision }: { index: number; decision: Decision }
         ) : null}
       </div>
     </div>
+  );
+}
+
+const DISC_TOTAL_TRACKS = 14;
+
+// Matches the disc renderer from the "Disc progress render" artifact:
+// a real cover-art annulus between the hub and outer rim, greyscale
+// underneath, with true colour painted back in over a clock-hand sweep
+// that stops advancing at 80% and only closes on the jump to done.
+const DISC_INNER_RATIO = 0.29;
+const DISC_OUTER_RATIO = 0.95;
+const DISC_PLATEAU_START = 0.8;
+const DISC_START_OFFSET_RAD = (10 * Math.PI) / 180;
+
+function discSourceSize(source: HTMLImageElement | HTMLCanvasElement) {
+  if (source instanceof HTMLImageElement) {
+    return { width: source.naturalWidth, height: source.naturalHeight };
+  }
+  return { width: source.width, height: source.height };
+}
+
+function drawDiscCover(
+  ctx: CanvasRenderingContext2D,
+  source: HTMLImageElement | HTMLCanvasElement,
+  cx: number,
+  cy: number,
+  boxSize: number,
+) {
+  const { width: iw, height: ih } = discSourceSize(source);
+  if (!iw || !ih) return;
+  const scale = Math.max(boxSize / iw, boxSize / ih);
+  const dw = iw * scale;
+  const dh = ih * scale;
+  ctx.drawImage(source, cx - dw / 2, cy - dh / 2, dw, dh);
+}
+
+function renderDiscToCanvas(
+  canvas: HTMLCanvasElement,
+  cdImg: HTMLImageElement,
+  artImg: HTMLImageElement,
+  grayArt: HTMLCanvasElement,
+  progress: number,
+) {
+  const size = canvas.width;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+  const R = size / 2;
+  const cx = R;
+  const cy = R;
+
+  ctx.clearRect(0, 0, size, size);
+  ctx.drawImage(cdImg, 0, 0, size, size);
+
+  const innerR = R * DISC_INNER_RATIO;
+  const outerR = R * DISC_OUTER_RATIO;
+  const midR = (innerR + outerR) / 2;
+  const ringWidth = outerR - innerR;
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, outerR, 0, Math.PI * 2, false);
+  ctx.arc(cx, cy, innerR, 0, Math.PI * 2, true);
+  ctx.clip("evenodd");
+
+  drawDiscCover(ctx, grayArt, cx, cy, outerR * 2);
+
+  const raw = Math.min(1, Math.max(0, progress));
+  const full = raw >= 1;
+  const sweep = full ? Math.PI * 2 : Math.min(raw, DISC_PLATEAU_START) * Math.PI * 2;
+
+  if (sweep > 0) {
+    const mask = document.createElement("canvas");
+    mask.width = size;
+    mask.height = size;
+    const mctx = mask.getContext("2d");
+    if (mctx) {
+      const start = -Math.PI / 2 + DISC_START_OFFSET_RAD;
+      const end = start + sweep;
+      mctx.lineCap = "round";
+      mctx.lineWidth = ringWidth;
+      mctx.strokeStyle = "#000";
+      mctx.beginPath();
+      mctx.arc(cx, cy, midR, start, end, false);
+      mctx.stroke();
+
+      mctx.globalCompositeOperation = "source-in";
+      drawDiscCover(mctx, artImg, cx, cy, outerR * 2);
+
+      ctx.drawImage(mask, 0, 0);
+    }
+  }
+
+  ctx.restore();
+}
+
+type DiscAssets = {
+  ready: boolean;
+  cdImgRef: RefObject<HTMLImageElement | null>;
+  artImgRef: RefObject<HTMLImageElement | null>;
+  grayArtRef: RefObject<HTMLCanvasElement | null>;
+};
+
+function useDiscAssets(): DiscAssets {
+  const [ready, setReady] = useState(false);
+  const cdImgRef = useRef<HTMLImageElement | null>(null);
+  const artImgRef = useRef<HTMLImageElement | null>(null);
+  const grayArtRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const cdImg = new Image();
+    const artImg = new Image();
+    let loaded = 0;
+
+    function onEach() {
+      loaded++;
+      if (loaded !== 2 || cancelled) return;
+      const gray = document.createElement("canvas");
+      gray.width = artImg.naturalWidth;
+      gray.height = artImg.naturalHeight;
+      const gctx = gray.getContext("2d");
+      if (gctx) {
+        gctx.filter = "grayscale(1) brightness(0.6) contrast(0.92)";
+        gctx.drawImage(artImg, 0, 0);
+      }
+      cdImgRef.current = cdImg;
+      artImgRef.current = artImg;
+      grayArtRef.current = gray;
+      setReady(true);
+    }
+
+    cdImg.onload = onEach;
+    artImg.onload = onEach;
+    cdImg.src = `${BASE_PATH}/images/discify-disc-cd.png`;
+    artImg.src = `${BASE_PATH}/images/discify-disc-art.jpg`;
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return { ready, cdImgRef, artImgRef, grayArtRef };
+}
+
+function DiscCanvas({
+  progress,
+  size,
+  displaySize,
+  assets,
+}: {
+  progress: number;
+  size: number;
+  displaySize: number;
+  assets: DiscAssets;
+}) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const cdImg = assets.cdImgRef.current;
+    const artImg = assets.artImgRef.current;
+    const grayArt = assets.grayArtRef.current;
+    if (!assets.ready || !canvas || !cdImg || !artImg || !grayArt) return;
+    renderDiscToCanvas(canvas, cdImg, artImg, grayArt, progress);
+  }, [assets, progress]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      width={size}
+      height={size}
+      style={{ width: displaySize, height: displaySize }}
+      aria-hidden="true"
+    />
+  );
+}
+
+const DISC_GLANCE_STEPS = [0, 25, 50, 80, 95, 100];
+
+function DiscDemo() {
+  const assets = useDiscAssets();
+  const [percent, setPercent] = useState(62);
+  const tracks = Math.round((percent / 100) * DISC_TOTAL_TRACKS);
+
+  return (
+    <>
+      <div className="mt-6 border border-black/15 bg-black/[0.02] p-6">
+        <p className="text-xs font-semibold uppercase tracking-widest text-foreground/40">Progress Preview</p>
+        <div className="mt-4 flex flex-col items-center gap-6 sm:flex-row">
+          <DiscCanvas progress={percent / 100} size={280} displaySize={200} assets={assets} />
+          <div className="w-full flex-1">
+            <p className="text-3xl font-semibold text-foreground">
+              {percent}%
+              <span className="ml-2 text-sm font-normal text-foreground/50">
+                {tracks} / {DISC_TOTAL_TRACKS} tracks
+              </span>
+            </p>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={percent}
+              onChange={(event) => setPercent(Number(event.target.value))}
+              className="mt-4 w-full accent-black"
+              aria-label="Album listen progress"
+            />
+            <p className="mt-4 text-sm leading-relaxed text-foreground/60">
+              The progress sweep indicator stops advancing at 80% and holds there, because states between
+              80%-100% looked too visually similar. Closing that gap is the jump to “complete”.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-4 border border-black/15 bg-black/[0.02] p-6">
+        <p className="text-xs font-semibold uppercase tracking-widest text-foreground/40">
+          Progress disc states
+        </p>
+        <div className="mt-4 grid grid-cols-3 gap-4 sm:grid-cols-6">
+          {DISC_GLANCE_STEPS.map((step) => (
+            <div
+              key={step}
+              className="flex flex-col items-center gap-2 border border-black/15 bg-white p-4"
+            >
+              <DiscCanvas progress={step / 100} size={140} displaySize={64} assets={assets} />
+              <p className="text-xs text-foreground/50">{step}%</p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-4 text-sm leading-relaxed text-foreground/60">
+          Between 80% and 100%, the disc looks almost identical, especially at small scales. The jump
+          between 80% directly to 100% makes completion visually obvious.
+        </p>
+      </div>
+    </>
   );
 }
 
@@ -392,9 +608,7 @@ export default function DiscifyPage() {
           {DECISIONS.map((decision, index) => (
             <div key={decision.title}>
               <DecisionCard index={index} decision={decision} />
-              {index === 4 ? (
-                <MediaPlaceholder type="Visual" label="Old vs. new wipe at ~95%" />
-              ) : null}
+              {index === 4 ? <DiscDemo /> : null}
             </div>
           ))}
         </section>
@@ -451,23 +665,6 @@ export default function DiscifyPage() {
             <p>A dedicated view with filter pills to switch between in-progress and complete discs.</p>
           </Prose>
           <MediaPlaceholder type="Video" label="Show all + filters" />
-        </section>
-
-        <SectionDivider />
-
-        {/* Building It */}
-        <section id="building-it" className="mt-16 scroll-mt-8">
-          <Eyebrow>Building It</Eyebrow>
-          <h2 className="mt-2 max-w-[700px] text-3xl font-semibold leading-tight text-foreground">
-            Built with Claude Code, on a product I don't control.
-          </h2>
-          <Prose>
-            <p>
-              I directed the build with Claude Code, testing each step before moving on. Spicetify only
-              lets you modify Spotify's existing UI, so every addition had to survive Spotify's own
-              updates and still feel native.
-            </p>
-          </Prose>
         </section>
 
         <SectionDivider />

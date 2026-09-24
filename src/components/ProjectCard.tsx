@@ -48,12 +48,9 @@ export default function ProjectCard({ project }: { project: Project }) {
 
   const body = (
     <div className="flex items-start justify-between gap-3 border-t border-black px-4 py-3">
-      <div className="flex flex-wrap items-baseline gap-x-1.5">
+      <div>
         <h3 className="font-semibold text-foreground">{project.title}</h3>
-        <p className="flex items-baseline gap-1.5 text-sm text-foreground/55">
-          <span className="text-lg leading-none">·</span>
-          {project.subheading}
-        </p>
+        <p className="text-sm text-foreground/55">{project.subheading}</p>
       </div>
       {project.tag ? (
         <span className="shrink-0 whitespace-nowrap border border-black px-2 py-1 text-xs font-medium text-foreground">

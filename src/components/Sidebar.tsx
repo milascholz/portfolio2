@@ -26,7 +26,6 @@ function LinkedInIcon({ className }: { className?: string }) {
 const NAV_ITEMS = [
   { href: "/", label: "projects" },
   { href: "/about", label: "about" },
-  { href: "/experience", label: "experience" },
 ];
 
 function normalizePath(path: string) {
