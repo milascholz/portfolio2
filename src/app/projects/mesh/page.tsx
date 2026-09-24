@@ -4,11 +4,11 @@ import Link from "next/link";
 import { BASE_PATH } from "@/lib/base-path";
 import { useRegisterProjectNav } from "@/context/ProjectNavContext";
 
-const TAGS = ["Engineering Design & Manufacturing"];
+const TAGS = ["UI/UX Feedback"];
 
 const SECTIONS = [
   { id: "overview", label: "Overview" },
-  { id: "approach", label: "Approach" },
+  { id: "feedback", label: "Feedback" },
   { id: "highlights", label: "Highlights" },
 ];
 
@@ -19,14 +19,14 @@ const ROLE_DETAILS = [
   { label: "Skills", value: "Coming soon" },
 ];
 
-export default function HumanoidRobotArmAssemblyPage() {
-  useRegisterProjectNav("Robotic Arm Assembly", SECTIONS);
+export default function MeshPage() {
+  useRegisterProjectNav("Mesh (YC W25) Website UI/UX Feedback", SECTIONS);
 
   return (
     <div>
       <video
         className="aspect-[40/9] w-full border border-black object-cover"
-        src={`${BASE_PATH}/videos/humanoid-robot-arm-assembly.mp4`}
+        src={`${BASE_PATH}/videos/mesh.mp4`}
         autoPlay
         loop
         muted
@@ -47,11 +47,11 @@ export default function HumanoidRobotArmAssemblyPage() {
         </div>
 
         <h1 className="mt-4 text-4xl font-bold tracking-tight text-foreground">
-          Robotic Arm Assembly
+          Mesh (YC W25) Website UI/UX Feedback
         </h1>
         <p className="mt-3 leading-relaxed text-foreground/70">
-          Part of a commissioned humanoid AI TA robot. This case study is
-          coming soon.
+          An open call for UI/UX feedback on Mesh, posted via LinkedIn. This
+          case study is coming soon.
         </p>
 
         <div className="mt-8 grid grid-cols-2 gap-6 border border-black bg-black p-6 text-white sm:grid-cols-4">
@@ -68,16 +68,17 @@ export default function HumanoidRobotArmAssemblyPage() {
         <section id="overview" className="mt-14 scroll-mt-8">
           <h2 className="text-2xl font-semibold text-foreground">Overview</h2>
           <p className="mt-3 leading-relaxed text-foreground/70">
-            This is a placeholder for the project overview. Summarize the
+            This is a placeholder for the Mesh overview. Summarize the
             problem, goals, and approach here.
           </p>
         </section>
 
-        <section id="approach" className="mt-14 scroll-mt-8">
-          <h2 className="text-2xl font-semibold text-foreground">Approach</h2>
+        <section id="feedback" className="mt-14 scroll-mt-8">
+          <h2 className="text-2xl font-semibold text-foreground">Feedback</h2>
           <p className="mt-3 leading-relaxed text-foreground/70">
-            This is a placeholder for the approach section. Walk through the
-            design, engineering, and build process here.
+            This is a placeholder for the feedback section. Walk through the
+            comments gathered from the LinkedIn call and what came of them
+            here.
           </p>
         </section>
 

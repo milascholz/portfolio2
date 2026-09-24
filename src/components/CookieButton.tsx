@@ -185,7 +185,7 @@ export default function CookieButton() {
 
       <div
         className={`pointer-events-none absolute bottom-full left-1/2 z-10 flex -translate-x-1/2 flex-col items-center pb-2 transition-opacity duration-300 ${
-          showClickHint ? "opacity-100" : "opacity-0"
+          showClickHint ? "opacity-100 animate-soft-bounce" : "opacity-0"
         }`}
       >
         <div className="-mb-px whitespace-nowrap border border-black bg-white px-2 py-1 text-xs shadow-sm">

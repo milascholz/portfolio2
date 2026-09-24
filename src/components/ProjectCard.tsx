@@ -51,9 +51,7 @@ export default function ProjectCard({ project }: { project: Project }) {
       <div className="flex flex-wrap items-baseline gap-x-1.5">
         <h3 className="font-semibold text-foreground">{project.title}</h3>
         <p className="flex items-baseline gap-1.5 text-sm text-foreground/55">
-          {project.id !== "project-three" ? (
-            <span className="text-lg leading-none">·</span>
-          ) : null}
+          <span className="text-lg leading-none">·</span>
           {project.subheading}
         </p>
       </div>
