@@ -14,7 +14,6 @@ const SECTIONS = [
   { id: "solution", label: "Solution" },
   { id: "design-process", label: "Design Process" },
   { id: "design-decisions", label: "Design Decisions" },
-  { id: "exploring-placement", label: "Exploring Placement" },
   { id: "core-flows", label: "Core Flows" },
   { id: "final-product", label: "Final Product" },
   { id: "reflection", label: "Reflection" },
@@ -184,38 +183,38 @@ const DECISIONS: Decision[] = [
   {
     title: "Completion threshold: 90% per track",
     decision:
-      "A track counts once 90% of it is played. An album completes when every track clears that bar.",
-    why: "100% is unrealistic, since songs cut off and outros get skipped. Anything lower lets people skip to the end.",
+      "A track counts as “listened” once 90% of it is played. An album completes when every track clears that threshold.",
+    why: "100% is problematic if there is a buffering glitch, if a user skips back to replay a lyric, or if they close the app two seconds early, because it would wrongly disqualify an otherwise real listen. The 90% threshold absorbs that noise while still landing past the point where skipping “pays off”; if a user listens to 90% of a track, they’ve essentially heard the whole thing.",
   },
   {
     title: "No discs for singles",
     decision: "Only albums earn discs.",
-    why: "Singles originally earned discs too, which meant playing one song got you the same badge as sitting through a full record. That made discs easy to collect and cheapened the ones that took real listening. It also missed the point. A single has no sequencing or transitions to appreciate. Limiting discs to albums keeps every disc tied to listening to a full body of work.",
+    why: "Singles originally earned discs too, which meant that for every single song played on Spotify, a new completed disc or “in progress” disc would be generated. This overpopulated the collected discs section, giving the user a cluttered overview of their album listening history. It also missed the point of Discify: a single has no sequencing or transitions to appreciate.",
   },
   {
-    title: "“In progress” = 3 tracks, not a percentage",
+    title: "“In progress” = 3 tracks, not a percentage listened",
     decision:
-      "An album shows as in progress after 3 tracks, capped at the album's length for shorter releases.",
-    why: "I started with 30% of tracks listened, but a percentage treats albums unevenly. 30% of a 20-track album is 6 songs, a real commitment. 30% of a 7-track album is 2. Short albums landed on the shelf almost by accident, while long ones took an hour to show up. A fixed count means the same effort gets any album on the shelf, no matter its length.",
+      "An album shows as “in progress” after 3 tracks, not after listening to a set percentage of an album.",
+    why: "I started with 30% of tracks listened being the threshold for generating an “in progress” disc for an album, but that treats albums unevenly. 30% of a 20-track album is 6 songs, whereas 30% of a 7-track album is 2. Short albums landed on the shelf almost by accident, while long ones took longer to show up. A fixed count means the same effort grants any album an “in progress” disc, no matter its length.",
     rejected:
       "Showing every album you've played one song from, since it would clutter the shelf and make progress difficult to track for a user.",
   },
   {
     title: "Discs are private, not social",
     decision: "Friends can't see your discs.",
-    why: "Public badges would push people to listen for the badge instead of the music. That's disingenuous for the user and for the artist. It also doesn't match Spotify's core product. Followers exist, but Spotify is built around individual listening, not an audience.",
-    rejected: "Shareable disc collections on public profiles.",
+    why: "Public disc badges would encourage people to listen to an album for the badge instead of the music. That's disingenuous for the user and for the artist, and doesn’t align with Discify's goal. It also doesn't match Spotify's core product. Followers exist, but Spotify is built around individual listening, not an audience.",
+    rejected: "Shareable disc collections on public profiles (see hand-drawn sketch for this concept work).",
   },
   {
-    title: "Progress wipe holds at 80%",
+    title: "Progress bar stalls at 80%",
     decision:
-      "The disc fills clockwise from grayscale to color, but holds at 80% until every track is complete.",
-    why: "The wipe originally filled continuously, so an album at 95% looked finished. At a glance, you couldn't tell a nearly done disc from a complete one, and the payoff of finishing disappeared. Holding at 80% leaves a visible gap until the last track is done. The final fill becomes its own moment, and a full disc always means a finished album.",
+      "A disc in progress fills clockwise from grayscale to color, but stalls at 80% until every track is complete.",
+    why: "The clockwise progress bar originally responded directly to the percentage of an album listened, but due to the small icons within the app, an album at 95% looked the same as an album at 100%. You couldn't tell a nearly done disc from a complete one, so the payoff of finishing an album disappeared. Stalling the progress bar at 80% leaves a gap visible at all disc sizes until the last track is complete. This clearly distinguishes a finished album.",
   },
   {
     title: "Filter between in-progress and complete",
     decision: "Filter pills on the “Show all” view.",
-    why: "At first, every disc sat on one shelf. As it grew, finished and in-progress albums blurred together, and the collection stopped feeling like a collection. The one thing worth seeing, what you've actually finished, was buried. Filters let you view completed discs on their own, or check what's still in progress when you're picking what to listen to next.",
+    why: "At first, every disc was included in the same section. As collections grew, finished and in-progress albums were difficult to separate, and the collection stopped feeling like a collection. The one thing worth seeing, what you've actually finished, was buried. Filters let you view completed discs on their own, or view what's still in progress when you're picking what to listen to next.",
   },
 ];
 
@@ -460,8 +459,9 @@ function DiscDemo() {
               aria-label="Album listen progress"
             />
             <p className="mt-4 text-sm leading-relaxed text-foreground/60">
-              The progress sweep indicator stops advancing at 80% and holds there, because states between
-              80%-100% looked too visually similar. Closing that gap is the jump to “complete”.
+              The progress indicator stops advancing at 80% and stalls there, because states between
+              80%-100% looked too visually similar at smaller scales. Closing that gap is the jump to
+              “complete”.
             </p>
           </div>
         </div>
@@ -483,8 +483,7 @@ function DiscDemo() {
           ))}
         </div>
         <p className="mt-4 text-sm leading-relaxed text-foreground/60">
-          Between 80% and 100%, the disc looks almost identical, especially at small scales. The jump
-          between 80% directly to 100% makes completion visually obvious.
+          Notice for yourself the challenge of discerning between the 80%, 95%, and 100% disc states.
         </p>
       </div>
     </div>
@@ -499,7 +498,7 @@ const PROCESS_STEPS: ProcessStep[] = [
   { title: "1. Sketches" },
   { title: "2. Functional MVP" },
   { title: "3. Designed" },
-  { title: "4. Final" },
+  { title: "4. Final Product" },
 ];
 
 type PlacementOption = {
@@ -521,20 +520,20 @@ const PLACEMENT_OPTIONS: PlacementOption[] = [
     imageSrc: "/images/discify/search-results.png",
     imageAlt:
       "Spotify search page with recent searches, each result showing a small disc badge next to the album art",
-    imagePosition: "object-[center_6%]",
+    imagePosition: "object-center",
   },
   {
     title: "Library lists",
     verdict: "Rejected",
-    body: "Same problem. The signal gets diluted when it's everywhere the album appears.",
+    body: "Same problem. The excitement for the feature gets diluted when it's everywhere the album appears.",
     imageSrc: "/images/discify/search-results2.png",
     imageAlt: "Your Library view with Albums filter, showing a small disc badge next to each album",
     imagePosition: "object-top",
   },
   {
-    title: "Album page, beside the play button",
+    title: "Album page",
     verdict: "Chosen",
-    body: "This ties the badge to the moment of listening, and it sits where your eye already goes when you open a record.",
+    body: "This ties the disc badge most closely to the listening experience, as it sits where your eye naturally goes when you open or play an album.",
     imageSrc: "/images/discify/album-placement.png",
     imageAlt: "Album page for 'Do That Again' with a disc badge icon beside the play button",
     imagePosition: "object-[center_78%]",
@@ -629,11 +628,11 @@ export default function DiscifyPage() {
         <section id="overview" className="mt-16 scroll-mt-8">
           <Eyebrow>Overview</Eyebrow>
           <h2 className="mt-2 max-w-[960px] text-3xl font-semibold leading-tight text-foreground">
-            A Spicetify extension that rewards listening to a full Spotify album.
+            A Spotify extension that rewards listening to an entire album the way it was meant to be heard.
           </h2>
           <Prose>
             <p>
-              Listen to an album start to finish and you earn a CD badge with the album art on it. Badges
+              Listen to every song in an album to earn a CD “badge” with the album’s art on it. Badges
               live on the album page and on your profile, and progress updates in real time as you listen.
             </p>
           </Prose>
@@ -643,12 +642,13 @@ export default function DiscifyPage() {
         <section id="problem" className="mt-16 scroll-mt-8">
           <Eyebrow>Problem</Eyebrow>
           <h2 className="mt-2 max-w-[960px] text-3xl font-semibold leading-tight text-foreground">
-            Spotify has no concept of finishing an album.
+            Spotify has no concept to track finishing an album.
           </h2>
           <Prose>
             <p>
-              Skip through half a tracklist and it counts the same as a full listen. Spotify keeps no
-              record of the difference between background noise and sitting with a record.
+              Skip through half a tracklist or listen to an album in full; Spotify logs this all in your
+              listening history, but can’t differentiate between background music and intentionally
+              listening to an entire record.
             </p>
           </Prose>
 
@@ -657,16 +657,17 @@ export default function DiscifyPage() {
           </h2>
           <Prose>
             <p>
-              I noticed I only finished albums on car rides with a friend, playing new releases from
-              Ariana Grande and Gracie Abrams. On my own, I shuffled and skipped. That means missing
-              deliberate transitions, recurring themes, and the craft that goes into ordering a tracklist.
+              I noticed I only listened to entire albums, start to finish, on long car rides with a
+              friend, for example playing new releases from Ariana Grande and Gracie Abrams. On my own, I
+              shuffled and skipped songs. That means missing deliberate transitions an artist has added
+              between songs, recurring themes, and the craft that goes into ordering a tracklist.
             </p>
           </Prose>
 
           <div className="mt-6">
             <Callout>
-              <span className="font-semibold">Goal:</span> give people a reason to listen to full albums,
-              for their own sake, not for engagement.
+              <span className="font-semibold">Goal:</span> give people a reason to listen to full albums
+              to experience them the way the artist intended, not for engagement.
             </Callout>
           </div>
         </section>
@@ -679,16 +680,16 @@ export default function DiscifyPage() {
           </h2>
           <Prose>
             <ul className="list-disc space-y-2 pl-5">
-              <li>Every album gets a disc that fills with color as you listen</li>
-              <li>It completes only when every track is actually played</li>
-              <li>Discs are collected on a private shelf on your profile</li>
+              <li>Every album gets a custom disc that fills with color as you listen</li>
+              <li>A disc is completed only when every track is actually played</li>
+              <li>Discs are collected in a private section on your profile</li>
               <li>In-progress albums show up once you've made a real start</li>
             </ul>
           </Prose>
           <Figure
             src="/images/discify/discify-profile-shelf.png"
             alt="Discs collected page showing All, Collected, and In progress filter pills above six discs, each with the album's cover art, title, and artist"
-            caption="Profile shelf of earned discs, with collected / in-progress filters"
+            caption="Profile section of earned discs, with collected / in-progress filters"
           />
         </section>
 
@@ -696,14 +697,15 @@ export default function DiscifyPage() {
         <section id="design-process" className="mt-16 scroll-mt-8">
           <Eyebrow>Design Process</Eyebrow>
           <h2 className="mt-2 max-w-[960px] text-3xl font-semibold leading-tight text-foreground">
-            From paper sketch to working MVP to designed product.
+            From paper sketch to working MVP to final product.
           </h2>
           <Prose>
             <p>
-              The concept was clear early, so I sketched the key screens by hand and went straight to
-              building. I got the core logic working first, then designed on top of it. The working
-              extension became my prototype. I used it daily and changed anything that didn't hold up in
-              real use.
+              The concept was clear early, but I always like to begin designs on paper to slow down and
+              work through several concepts, so I sketched the key screens by hand and then went straight
+              to building. I got the core logic working first, then refined the designs on top of it. That
+              working version became my prototype. I used it daily and improved it based on friction
+              points I noticed as an actual user.
             </p>
           </Prose>
 
@@ -716,26 +718,30 @@ export default function DiscifyPage() {
                 <>
                   <Prose>
                     <p>
-                      Completion tracking, the track dropdown, and the rotation animation worked, but
-                      every disc looked the same, lacked album art, and singles like &quot;Do That
-                      Again&quot; still earned their own disc — which led to Decision 2.
+                      Included track completion tracking, the track dropdown, and the rotation animation
+                      for discs. However, every disc looked the same, lacked album art, and singles still
+                      earned their own disc (which led to Design Decision #2, explained in the next
+                      section).
                     </p>
                   </Prose>
                   <MediaPair
                     videoSrc="/videos/discify-mvp-demo.mp4"
-                    videoCaption="First edition of tracking and designs in albums"
+                    videoCaption="First edition of tracking and design within albums"
                     imageSrc="/images/discify/discify-mvp-screenshot.png"
                     imageAspect="558 / 438"
                     imageAlt="Early functional build showing collected discs with no visual styling yet"
-                    imageCaption="First edition of collected discs design"
+                    imageCaption="First edition of collected discs design, where singles like &quot;4me 4me&quot; earned their own disc"
                   />
                 </>
               ) : step.title === "3. Designed" ? (
                 <>
                   <Prose>
                     <p>
-                      With the logic proven, I moved into Figma to redesign the disc from a placeholder
-                      sphere into a flat CD with real album art.
+                      With the logic proven, I transitioned into Figma to redesign the MVP disc from a
+                      placeholder sphere into a flat CD with real album art. I designed the in-progress and
+                      completed disc states as shown below, but later decided to make the background of
+                      the in-progress disc state greyscale for increased contrast when discs appear small
+                      on-screen.
                     </p>
                   </Prose>
                   <div className="mt-6 border border-black/15 bg-black/[0.035] p-6">
@@ -747,25 +753,26 @@ export default function DiscifyPage() {
                     />
                     <p className="mt-2 text-xs text-foreground/50">
                       Redesigning the disc in Figma — from a 3D gradient sphere, to a flat CD base, to
-                      the final cover-art disc with title overlay.
+                      the final cover-art disc states.
                     </p>
                   </div>
                 </>
-              ) : step.title === "4. Final" ? (
+              ) : step.title === "4. Final Product" ? (
                 <>
                   <Prose>
                     <p>
-                      The shipped version pairs the redesigned disc with real album art across the
-                      tracking UI and the profile shelf.
+                      The shipped version includes the redesigned disc with real album art, the tracking
+                      UI, and the profile section with filters to toggle between in-progress and completed
+                      albums.
                     </p>
                   </Prose>
                   <MediaPair
                     videoSrc="/videos/discify-designed-demo.mp4"
-                    videoCaption="Final tracking and designs in albums"
+                    videoCaption="Final tracking and designs within albums"
                     videoAspect="1676 / 1386"
                     imageSrc="/images/discify/discify-designed-screenshot.png"
                     imageAlt="Discs collected page with album art, showing collected and in-progress filter pills above eight discs"
-                    imageCaption="Final collected discs design"
+                    imageCaption="Final collected discs design, where only albums, not singles, earned their own disc"
                   />
                 </>
               ) : (
@@ -785,7 +792,7 @@ export default function DiscifyPage() {
                         className="w-full"
                       />
                       <p className="mt-2 text-xs text-foreground/50">
-                        The original idea — a disc badge whose cover art colors in to show listening
+                        The original idea: a disc badge whose cover art colors in to show listening
                         progress
                       </p>
                     </div>
@@ -798,7 +805,7 @@ export default function DiscifyPage() {
                           className="w-full"
                         />
                         <p className="mt-2 text-xs text-foreground/50">
-                          Working out the track-by-track breakdown and how to mark listened vs. unlistened
+                          Working out the track breakdown and how to mark listened vs. unlistened tracks
                         </p>
                       </div>
                       <div>
@@ -809,7 +816,7 @@ export default function DiscifyPage() {
                           className="w-full"
                         />
                         <p className="mt-2 text-xs text-foreground/50">
-                          Sketching the profile header — recently collected discs vs. a simple count
+                          Sketching the profile header: recently collected discs vs. a simple disc count
                         </p>
                       </div>
                     </div>
@@ -824,7 +831,7 @@ export default function DiscifyPage() {
         <section id="design-decisions" className="mt-16 scroll-mt-8">
           <Eyebrow>Design Decisions</Eyebrow>
           <h2 className="mt-2 max-w-[960px] text-3xl font-semibold leading-tight text-foreground">
-            Every rule is a choice about what counts as really listening.
+            The completion logic: defining a “listen”
           </h2>
           {DECISIONS.map((decision, index) => (
             <DecisionCard
@@ -838,12 +845,13 @@ export default function DiscifyPage() {
                       {
                         src: "/images/discify/discs-with-singles.png",
                         alt: "Six discs including singles like \"I Barely Know Her\" and \"Falls Into Place\" earning the same badge as full albums",
-                        caption: "Before — singles earned a disc just like full albums",
+                        caption:
+                          "Before: overpopulated collected discs section, since singles earned a disc just like full albums",
                       },
                       {
                         src: "/images/discify/discs-no-singles.png",
                         alt: "Discs shelf with singles removed, showing only full albums like \"Midnight Memories\" and \"FOUR\"",
-                        caption: "After — only completed albums earn a disc",
+                        caption: "After: only completed albums earn a disc, creating a cleaner collection",
                       },
                     ]}
                   />
@@ -865,14 +873,10 @@ export default function DiscifyPage() {
               }
             />
           ))}
-        </section>
 
-        {/* Exploring Placement */}
-        <section id="exploring-placement" className="mt-16 scroll-mt-8">
-          <Eyebrow>Exploring Placement</Eyebrow>
-          <h2 className="mt-2 max-w-[960px] text-3xl font-semibold leading-tight text-foreground">
+          <h3 className="mt-10 max-w-[960px] text-xl font-semibold leading-snug text-foreground">
             Where should a disc appear?
-          </h2>
+          </h3>
           <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
             {PLACEMENT_OPTIONS.map((option) => (
               <PlacementCard key={option.title} option={option} />
@@ -884,7 +888,7 @@ export default function DiscifyPage() {
         <section id="core-flows" className="mt-16 scroll-mt-8">
           <Eyebrow>Core Flows</Eyebrow>
           <h2 className="mt-2 max-w-[960px] text-3xl font-semibold leading-tight text-foreground">
-            Three places discs show up.
+            Three places Discify shows up in Spotify.
           </h2>
 
           <h3 className="mt-10 max-w-[960px] text-xl font-semibold leading-snug text-foreground">
@@ -892,25 +896,29 @@ export default function DiscifyPage() {
           </h3>
           <Prose>
             <p>
-              A mini disc sits beside the play button. Hover and it spins, and a toast shows the percent
-              listened. Click and a breakdown shows which tracks you've heard and which you haven't.
+              A mini disc sits beside the play button. Hover and it spins, and a toast popup shows the
+              percent and number of songs listened. Click the disc and a breakdown shows which tracks
+              you've listened to and which you haven't.
             </p>
           </Prose>
           <MediaBoxVideo
             src="/videos/discify-core-album-page.mp4"
-            caption="Hovering the mini disc on Short n' Sweet spins it in place, slowed down"
+            caption="Mini disc interaction on album pages"
           />
 
           <h3 className="mt-10 max-w-[960px] text-xl font-semibold leading-snug text-foreground">Profile</h3>
           <Prose>
             <p>
-              Two new sections sit near the follower count and beneath Public Playlists, with one shared
-              shelf captioned "X collected · X in progress."
+              A new section on a user’s profile is created underneath the “Public Playlists” section,
+              displaying a user’s most recent in progress and completed albums. The “X collected · X in
+              progress” provides a preview of a user’s total discs, which can be found when expanding this
+              section by clicking “Show all”. The “X collected” tag also appears beside a user’s following
+              count, but is private to avoid disingenuity, as explained by design decision #4.
             </p>
           </Prose>
           <MediaBoxVideo
             src="/videos/discify-core-profile.mp4"
-            caption="Discs collected shelf on the profile, slowed down"
+            caption="Discs collected section on a user’s profile"
           />
 
           <h3 className="mt-10 max-w-[960px] text-xl font-semibold leading-snug text-foreground">
@@ -921,7 +929,7 @@ export default function DiscifyPage() {
           </Prose>
           <MediaBoxVideo
             src="/videos/discify-core-show-all.mp4"
-            caption="Switching to the in-progress filter from the show all view, slowed down"
+            caption="Toggling between filters"
           />
         </section>
 
@@ -933,17 +941,19 @@ export default function DiscifyPage() {
           </h2>
           <Prose>
             <p>
-              <span className="font-semibold text-foreground">Shipped:</span> completion tracking, the
-              album page badge with hover and click detail, and profile shelves with filtering.
+              <span className="font-semibold text-foreground">Shipped:</span> appropriate completion
+              tracking and visualization through disc design, the album page discs with hover and click
+              details, and the profile section with disc progress filtering.
             </p>
             <p>
-              <span className="font-semibold text-foreground">Next:</span> a Wrapped-style yearly recap of
-              completed albums.
+              <span className="font-semibold text-foreground">Next:</span> a Spotify Wrapped-style yearly
+              recap of stats like number of completed albums, number of new albums listened to, number of
+              albums started, number of times the same album was fully listened to, etc.
             </p>
           </Prose>
           <MediaBoxVideo
             src="/videos/discify-showcase.mp4"
-            caption="Discify in daily use — progress tracking, disc badges, and the collected shelf"
+            caption="Final product, Discify in use"
           />
         </section>
 
@@ -957,19 +967,19 @@ export default function DiscifyPage() {
           <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2">
             <div>
               <h3 className="text-xl font-semibold leading-snug text-foreground">
-                Designing inside someone else's product means designing to disappear.
+                Designing within someone else's product means designing to “disappear”.
               </h3>
               <p className="mt-3 leading-relaxed text-foreground/70">
-                The best compliment for Discify is that it looks like Spotify made it. That meant
-                reusing their patterns instead of inventing my own.
+                The best aspect of Discify is that it looks like it belongs in Spotify, because the design
+                decisions matched the existing product.
               </p>
             </div>
             <div>
               <h3 className="text-xl font-semibold leading-snug text-foreground">
-                Knowing what the product is for makes the hard calls easy.
+                Knowing what the product is for and understanding the platform avoids feature creep.
               </h3>
               <p className="mt-3 leading-relaxed text-foreground/70">
-                Making discs social would have boosted engagement and hurt the point of the product.
+                Making discs social would have boosted engagement, but hurt the point of the product.
               </p>
             </div>
           </div>
