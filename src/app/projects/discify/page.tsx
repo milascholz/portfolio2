@@ -216,6 +216,12 @@ const DECISIONS: Decision[] = [
     decision: "Filter pills on the “Show all” view.",
     why: "At first, every disc was included in the same section. As collections grew, finished and in-progress albums were difficult to separate, and the collection stopped feeling like a collection. The one thing worth seeing, what you've actually finished, was buried. Filters let you view completed discs on their own, or view what's still in progress when you're picking what to listen to next.",
   },
+  {
+    title: "Disc placement: album page only",
+    decision: "The disc badge lives on the album page only.",
+    why: "A disc beside every album was too messy on search results and library lists — screens built for finding music, not celebrating a finished one. It also diluted the feature by putting it everywhere an album appears. The album page ties the badge to the listening experience itself, sitting where your eye naturally goes when you open or play an album.",
+    rejected: "Search results, library lists — both too cluttered and off-purpose.",
+  },
 ];
 
 function DecisionCard({
@@ -459,9 +465,7 @@ function DiscDemo() {
               aria-label="Album listen progress"
             />
             <p className="mt-4 text-sm leading-relaxed text-foreground/60">
-              The progress indicator stops advancing at 80% and stalls there, because states between
-              80%-100% looked too visually similar at smaller scales. Closing that gap is the jump to
-              “complete”.
+              Slide this progress bar to visualize this design decision.
             </p>
           </div>
         </div>
@@ -504,7 +508,6 @@ const PROCESS_STEPS: ProcessStep[] = [
 type PlacementOption = {
   title: string;
   verdict: "Chosen" | "Rejected";
-  body: string;
   imageSrc: string;
   imageAlt: string;
   imagePosition: string;
@@ -516,7 +519,6 @@ const PLACEMENT_OPTIONS: PlacementOption[] = [
   {
     title: "Search results",
     verdict: "Rejected",
-    body: "A disc beside every album was too messy on a screen built for finding music.",
     imageSrc: "/images/discify/search-results.png",
     imageAlt:
       "Spotify search page with recent searches, each result showing a small disc badge next to the album art",
@@ -525,7 +527,6 @@ const PLACEMENT_OPTIONS: PlacementOption[] = [
   {
     title: "Library lists",
     verdict: "Rejected",
-    body: "Same problem. The excitement for the feature gets diluted when it's everywhere the album appears.",
     imageSrc: "/images/discify/search-results2.png",
     imageAlt: "Your Library view with Albums filter, showing a small disc badge next to each album",
     imagePosition: "object-top",
@@ -533,7 +534,6 @@ const PLACEMENT_OPTIONS: PlacementOption[] = [
   {
     title: "Album page",
     verdict: "Chosen",
-    body: "This ties the disc badge most closely to the listening experience, as it sits where your eye naturally goes when you open or play an album.",
     imageSrc: "/images/discify/album-placement.png",
     imageAlt: "Album page for 'Do That Again' with a disc badge icon beside the play button",
     imagePosition: "object-[center_78%]",
@@ -548,7 +548,7 @@ function PlacementCard({ option }: { option: PlacementOption }) {
         isChosen ? "border-black bg-white" : "border-black/15 bg-black/[0.015]"
       }`}
     >
-      <div className="min-h-[200px] p-4">
+      <div className="p-4">
         <div className="flex flex-wrap items-baseline gap-2">
           <p className={isChosen ? "font-medium text-foreground" : "text-sm font-medium text-foreground/45"}>
             {option.title}
@@ -564,9 +564,6 @@ function PlacementCard({ option }: { option: PlacementOption }) {
             {option.verdict}
           </span>
         </div>
-        <p className={`mt-1.5 leading-relaxed ${isChosen ? "text-foreground/70" : "text-sm text-foreground/40"}`}>
-          {option.body}
-        </p>
       </div>
       <div className={`${PLACEMENT_IMAGE_ASPECT} w-full overflow-hidden bg-[#131313]`}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -869,19 +866,16 @@ export default function DiscifyPage() {
                       Filter pills for switching between all, collected, and in-progress discs
                     </p>
                   </div>
+                ) : index === 6 ? (
+                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+                    {PLACEMENT_OPTIONS.map((option) => (
+                      <PlacementCard key={option.title} option={option} />
+                    ))}
+                  </div>
                 ) : undefined
               }
             />
           ))}
-
-          <h3 className="mt-10 max-w-[960px] text-xl font-semibold leading-snug text-foreground">
-            Where should a disc appear?
-          </h3>
-          <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
-            {PLACEMENT_OPTIONS.map((option) => (
-              <PlacementCard key={option.title} option={option} />
-            ))}
-          </div>
         </section>
 
         {/* Core Flows */}
@@ -941,9 +935,9 @@ export default function DiscifyPage() {
           </h2>
           <Prose>
             <p>
-              <span className="font-semibold text-foreground">Shipped:</span> appropriate completion
-              tracking and visualization through disc design, the album page discs with hover and click
-              details, and the profile section with disc progress filtering.
+              <span className="font-semibold text-foreground">Shipped:</span> per-track 90% completion
+              thresholds, disc visualization, the album page discs with hover and click details, and the
+              profile section with disc progress filtering.
             </p>
             <p>
               <span className="font-semibold text-foreground">Next:</span> a Spotify Wrapped-style yearly
