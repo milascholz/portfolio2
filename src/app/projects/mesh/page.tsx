@@ -149,17 +149,19 @@ export default function MeshPage() {
 
   return (
     <div>
-      <video
-        className="aspect-[40/9] w-full border border-black object-cover"
-        src={`${BASE_PATH}/videos/mesh.mp4`}
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="metadata"
-      />
+      <div className="mx-auto w-full max-w-[1120px]">
+        <video
+          className="aspect-[40/9] w-full border border-black object-cover"
+          src={`${BASE_PATH}/videos/mesh.mp4`}
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="metadata"
+        />
+      </div>
 
-      <div className="mx-auto w-full p-6 md:p-10 lg:p-12">
+      <div className="mx-auto w-full max-w-[1120px] p-6 md:p-10 lg:p-12">
         <div className="flex flex-wrap gap-2">
           {TAGS.map((tag) => (
             <span

@@ -86,7 +86,27 @@ export default function Sidebar() {
     );
 
     elements.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+
+    // The IntersectionObserver's trigger band can miss a trailing section
+    // (e.g. the last one) if the page can't scroll far enough for that band
+    // to ever cross it. Hovering directly over a section's content is a
+    // reliable fallback/override that always works, regardless of scroll.
+    function handlePointerMove(event: PointerEvent) {
+      const y = event.clientY;
+      for (const el of elements) {
+        const rect = el.getBoundingClientRect();
+        if (y >= rect.top && y <= rect.bottom) {
+          setActiveSectionId(el.id);
+          return;
+        }
+      }
+    }
+
+    window.addEventListener("pointermove", handlePointerMove);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("pointermove", handlePointerMove);
+    };
   }, [projectNav]);
 
   function openCustomize() {

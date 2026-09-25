@@ -16,7 +16,7 @@ const SECTIONS = [
   { id: "design-decisions", label: "Design Decisions" },
   { id: "exploring-placement", label: "Exploring Placement" },
   { id: "core-flows", label: "Core Flows" },
-  { id: "outcome", label: "Outcome" },
+  { id: "final-product", label: "Final Product" },
   { id: "reflection", label: "Reflection" },
 ];
 
@@ -36,29 +36,76 @@ function Eyebrow({ children }: { children: ReactNode }) {
 }
 
 function Prose({ children }: { children: ReactNode }) {
-  return <div className="mt-4 max-w-[700px] space-y-4 leading-relaxed text-foreground/70">{children}</div>;
+  return <div className="mt-4 max-w-[960px] space-y-4 leading-relaxed text-foreground/70">{children}</div>;
 }
 
-function MediaPlaceholder({ type, label }: { type: "Visual" | "Video"; label: string }) {
+function Figure({
+  src,
+  alt,
+  caption,
+  maxWidth,
+}: {
+  src: string;
+  alt: string;
+  caption: string;
+  maxWidth?: number;
+}) {
   return (
-    <figure className="mt-6 flex min-h-[200px] w-full flex-col items-center justify-center gap-2 border border-black/15 bg-black/[0.035] p-8 text-center">
-      <span className="text-xs font-semibold uppercase tracking-widest text-foreground/30">
-        {type} placeholder
-      </span>
-      <figcaption className="text-xs uppercase tracking-widest text-foreground/45">{label}</figcaption>
-    </figure>
+    <div
+      className="mt-6 w-full border border-black/15 bg-black/[0.035] p-6"
+      style={maxWidth ? { maxWidth } : undefined}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={`${BASE_PATH}${src}`} alt={alt} className="w-full" />
+      <p className="mt-2 text-xs text-foreground/50">{caption}</p>
+    </div>
   );
 }
 
-function Figure({ src, alt, caption }: { src: string; alt: string; caption: string }) {
+type ImagePairItem = {
+  src: string;
+  alt: string;
+  caption: string;
+};
+
+function FigurePair({ items }: { items: [ImagePairItem, ImagePairItem] }) {
   return (
-    <figure className="mt-6 w-full overflow-hidden border border-black/15 bg-black/[0.035]">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={`${BASE_PATH}${src}`} alt={alt} className="w-full" />
-      <figcaption className="border-t border-black/15 px-4 py-2 text-xs uppercase tracking-widest text-foreground/45">
-        {caption}
-      </figcaption>
-    </figure>
+    <div className="border border-black/15 bg-black/[0.035] p-6">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        {items.map((item) => (
+          <div key={item.src}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={`${BASE_PATH}${item.src}`} alt={item.alt} className="w-full" />
+            <p className="mt-2 text-xs text-foreground/50">{item.caption}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MediaBoxVideo({
+  src,
+  caption,
+  maxWidth,
+}: {
+  src: string;
+  caption: string;
+  maxWidth?: number;
+}) {
+  return (
+    <div className="mt-6 w-full border border-black/15 bg-black/[0.035] p-6" style={maxWidth ? { maxWidth } : undefined}>
+      <video
+        className="w-full"
+        src={`${BASE_PATH}${src}`}
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="metadata"
+      />
+      <p className="mt-2 text-xs text-foreground/50">{caption}</p>
+    </div>
   );
 }
 
@@ -119,17 +166,9 @@ function MediaPair({
   );
 }
 
-function CaptionPlaceholder({ label }: { label: string }) {
-  return (
-    <p className="mt-2 max-w-[700px] text-xs italic leading-relaxed text-foreground/40">
-      Caption placeholder — {label}
-    </p>
-  );
-}
-
 function Callout({ children }: { children: ReactNode }) {
   return (
-    <div className="max-w-[700px] border-l-2 border-black pl-4">
+    <div className="max-w-[960px] border-l-2 border-black pl-4">
       <p className="leading-relaxed text-foreground">{children}</p>
     </div>
   );
@@ -180,9 +219,17 @@ const DECISIONS: Decision[] = [
   },
 ];
 
-function DecisionCard({ index, decision }: { index: number; decision: Decision }) {
+function DecisionCard({
+  index,
+  decision,
+  media,
+}: {
+  index: number;
+  decision: Decision;
+  media?: ReactNode;
+}) {
   return (
-    <div className="mt-6 w-full max-w-[820px] border border-black bg-white">
+    <div className="mt-6 w-full border border-black bg-white">
       <div className="border-b border-black bg-black px-5 py-3">
         <p className="text-sm font-semibold text-white">
           {String(index + 1).padStart(2, "0")} — {decision.title}
@@ -203,6 +250,7 @@ function DecisionCard({ index, decision }: { index: number; decision: Decision }
             <p className="mt-1.5 text-sm leading-relaxed text-foreground/40">{decision.rejected}</p>
           </div>
         ) : null}
+        {media ? <div className="py-5">{media}</div> : null}
       </div>
     </div>
   );
@@ -390,8 +438,8 @@ function DiscDemo() {
   const tracks = Math.round((percent / 100) * DISC_TOTAL_TRACKS);
 
   return (
-    <>
-      <div className="mt-6 border border-black/15 bg-black/[0.02] p-6">
+    <div className="space-y-4">
+      <div className="border border-black/15 bg-black/[0.035] p-6">
         <p className="text-xs font-semibold uppercase tracking-widest text-foreground/40">Progress Preview</p>
         <div className="mt-4 flex flex-col items-center gap-6 sm:flex-row">
           <DiscCanvas progress={percent / 100} size={280} displaySize={200} assets={assets} />
@@ -419,7 +467,7 @@ function DiscDemo() {
         </div>
       </div>
 
-      <div className="mt-4 border border-black/15 bg-black/[0.02] p-6">
+      <div className="border border-black/15 bg-black/[0.035] p-6">
         <p className="text-xs font-semibold uppercase tracking-widest text-foreground/40">
           Progress disc states
         </p>
@@ -439,61 +487,57 @@ function DiscDemo() {
           between 80% directly to 100% makes completion visually obvious.
         </p>
       </div>
-    </>
+    </div>
   );
 }
 
 type ProcessStep = {
   title: string;
-  visualLabel: string;
-  captionLabel: string;
 };
 
 const PROCESS_STEPS: ProcessStep[] = [
-  {
-    title: "1. Sketches",
-    visualLabel: "Hand sketches",
-    captionLabel: "what you were figuring out on paper, e.g. badge placement, disc shape",
-  },
-  {
-    title: "2. Functional MVP",
-    visualLabel: "Barebones build",
-    captionLabel:
-      "completion tracking working, no visual design yet. Proved the core rule before styling it.",
-  },
-  {
-    title: "3. Designed",
-    visualLabel: "First styled version",
-    captionLabel: "what you added, e.g. the CD with album art, the wipe, native layouts",
-  },
-  {
-    title: "4. Final",
-    visualLabel: "Final version",
-    captionLabel: "what changed after daily use. Point to the decisions below.",
-  },
+  { title: "1. Sketches" },
+  { title: "2. Functional MVP" },
+  { title: "3. Designed" },
+  { title: "4. Final" },
 ];
 
 type PlacementOption = {
   title: string;
   verdict: "Chosen" | "Rejected";
   body: string;
+  imageSrc: string;
+  imageAlt: string;
+  imagePosition: string;
 };
+
+const PLACEMENT_IMAGE_ASPECT = "aspect-[624/587]";
 
 const PLACEMENT_OPTIONS: PlacementOption[] = [
   {
     title: "Search results",
     verdict: "Rejected",
     body: "A disc beside every album was too messy on a screen built for finding music.",
+    imageSrc: "/images/discify/search-results.png",
+    imageAlt:
+      "Spotify search page with recent searches, each result showing a small disc badge next to the album art",
+    imagePosition: "object-[center_6%]",
   },
   {
     title: "Library lists",
     verdict: "Rejected",
     body: "Same problem. The signal gets diluted when it's everywhere the album appears.",
+    imageSrc: "/images/discify/search-results2.png",
+    imageAlt: "Your Library view with Albums filter, showing a small disc badge next to each album",
+    imagePosition: "object-top",
   },
   {
     title: "Album page, beside the play button",
     verdict: "Chosen",
     body: "This ties the badge to the moment of listening, and it sits where your eye already goes when you open a record.",
+    imageSrc: "/images/discify/album-placement.png",
+    imageAlt: "Album page for 'Do That Again' with a disc badge icon beside the play button",
+    imagePosition: "object-[center_78%]",
   },
 ];
 
@@ -501,46 +545,61 @@ function PlacementCard({ option }: { option: PlacementOption }) {
   const isChosen = option.verdict === "Chosen";
   return (
     <div
-      className={`mt-4 max-w-[700px] border p-4 ${
+      className={`w-full border ${
         isChosen ? "border-black bg-white" : "border-black/15 bg-black/[0.015]"
       }`}
     >
-      <div className="flex flex-wrap items-baseline gap-2">
-        <p className={isChosen ? "font-medium text-foreground" : "text-sm font-medium text-foreground/45"}>
-          {option.title}
+      <div className="min-h-[200px] p-4">
+        <div className="flex flex-wrap items-baseline gap-2">
+          <p className={isChosen ? "font-medium text-foreground" : "text-sm font-medium text-foreground/45"}>
+            {option.title}
+          </p>
+          <span className={isChosen ? "text-foreground/40" : "text-foreground/25"} aria-hidden="true">
+            →
+          </span>
+          <span
+            className={`text-xs font-semibold uppercase tracking-widest ${
+              isChosen ? "text-foreground" : "text-foreground/35"
+            }`}
+          >
+            {option.verdict}
+          </span>
+        </div>
+        <p className={`mt-1.5 leading-relaxed ${isChosen ? "text-foreground/70" : "text-sm text-foreground/40"}`}>
+          {option.body}
         </p>
-        <span
-          className={`text-xs font-semibold uppercase tracking-widest ${
-            isChosen ? "text-foreground" : "text-foreground/35"
-          }`}
-        >
-          {option.verdict}
-        </span>
       </div>
-      <p className={`mt-1.5 leading-relaxed ${isChosen ? "text-foreground/70" : "text-sm text-foreground/40"}`}>
-        {option.body}
-      </p>
+      <div className={`${PLACEMENT_IMAGE_ASPECT} w-full overflow-hidden bg-[#131313]`}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={`${BASE_PATH}${option.imageSrc}`}
+          alt={option.imageAlt}
+          className={`h-full w-full object-cover ${option.imagePosition}`}
+        />
+      </div>
     </div>
   );
 }
 
 export default function DiscifyPage() {
-  useRegisterProjectNav("discify", SECTIONS);
+  useRegisterProjectNav("Discify", SECTIONS);
 
   return (
     <div>
-      <video
-        className="aspect-[40/9] w-full border border-black object-cover"
-        src={`${BASE_PATH}/videos/discify-showcase.mp4`}
-        poster={`${BASE_PATH}/images/discify-poster.jpg`}
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="metadata"
-      />
+      <div className="mx-auto w-full max-w-[1120px]">
+        <video
+          className="aspect-[40/9] w-full border border-black object-cover"
+          src={`${BASE_PATH}/videos/discify-showcase.mp4`}
+          poster={`${BASE_PATH}/images/discify-poster.jpg`}
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="metadata"
+        />
+      </div>
 
-      <div className="mx-auto w-full p-6 md:p-10 lg:p-12">
+      <div className="mx-auto w-full max-w-[1120px] p-6 md:p-10 lg:p-12">
         <div className="flex flex-wrap gap-2">
           {TAGS.map((tag) => (
             <span
@@ -552,8 +611,8 @@ export default function DiscifyPage() {
           ))}
         </div>
 
-        <h1 className="mt-4 text-4xl font-bold tracking-tight text-foreground">discify</h1>
-        <p className="mt-3 max-w-[700px] leading-relaxed text-foreground/70">
+        <h1 className="mt-4 text-4xl font-bold tracking-tight text-foreground">Discify</h1>
+        <p className="mt-3 max-w-[960px] leading-relaxed text-foreground/70">
           Spotify extension gamifying album listens
         </p>
 
@@ -569,7 +628,7 @@ export default function DiscifyPage() {
         {/* Overview */}
         <section id="overview" className="mt-16 scroll-mt-8">
           <Eyebrow>Overview</Eyebrow>
-          <h2 className="mt-2 max-w-[700px] text-3xl font-semibold leading-tight text-foreground">
+          <h2 className="mt-2 max-w-[960px] text-3xl font-semibold leading-tight text-foreground">
             A Spicetify extension that rewards listening to a full Spotify album.
           </h2>
           <Prose>
@@ -583,7 +642,7 @@ export default function DiscifyPage() {
         {/* Problem */}
         <section id="problem" className="mt-16 scroll-mt-8">
           <Eyebrow>Problem</Eyebrow>
-          <h2 className="mt-2 max-w-[700px] text-3xl font-semibold leading-tight text-foreground">
+          <h2 className="mt-2 max-w-[960px] text-3xl font-semibold leading-tight text-foreground">
             Spotify has no concept of finishing an album.
           </h2>
           <Prose>
@@ -593,7 +652,7 @@ export default function DiscifyPage() {
             </p>
           </Prose>
 
-          <h2 className="mt-10 max-w-[700px] text-3xl font-semibold leading-tight text-foreground">
+          <h2 className="mt-10 max-w-[960px] text-3xl font-semibold leading-tight text-foreground">
             Most listeners never hear an album the way the artist sequenced it.
           </h2>
           <Prose>
@@ -615,7 +674,7 @@ export default function DiscifyPage() {
         {/* Solution */}
         <section id="solution" className="mt-16 scroll-mt-8">
           <Eyebrow>Solution</Eyebrow>
-          <h2 className="mt-2 max-w-[700px] text-3xl font-semibold leading-tight text-foreground">
+          <h2 className="mt-2 max-w-[960px] text-3xl font-semibold leading-tight text-foreground">
             Collectible discs, earned by actually listening.
           </h2>
           <Prose>
@@ -636,7 +695,7 @@ export default function DiscifyPage() {
         {/* Design Process */}
         <section id="design-process" className="mt-16 scroll-mt-8">
           <Eyebrow>Design Process</Eyebrow>
-          <h2 className="mt-2 max-w-[700px] text-3xl font-semibold leading-tight text-foreground">
+          <h2 className="mt-2 max-w-[960px] text-3xl font-semibold leading-tight text-foreground">
             From paper sketch to working MVP to designed product.
           </h2>
           <Prose>
@@ -650,7 +709,7 @@ export default function DiscifyPage() {
 
           {PROCESS_STEPS.map((step) => (
             <div key={step.title}>
-              <h3 className="mt-10 max-w-[700px] text-xl font-semibold leading-snug text-foreground">
+              <h3 className="mt-10 max-w-[960px] text-xl font-semibold leading-snug text-foreground">
                 {step.title}
               </h3>
               {step.title === "2. Functional MVP" ? (
@@ -717,8 +776,44 @@ export default function DiscifyPage() {
                       placement and the disc shape.
                     </p>
                   </Prose>
-                  <MediaPlaceholder type="Visual" label={step.visualLabel} />
-                  <CaptionPlaceholder label={step.captionLabel} />
+                  <div className="mt-6 border border-black/15 bg-black/[0.035] p-6">
+                    <div>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={`${BASE_PATH}/images/discify/brainstorm3.jpg`}
+                        alt="First concept sketch labeled 'Spotify app idea - badge collecting', showing a plain disc and a disc with cover art colored in to show progress"
+                        className="w-full"
+                      />
+                      <p className="mt-2 text-xs text-foreground/50">
+                        The original idea — a disc badge whose cover art colors in to show listening
+                        progress
+                      </p>
+                    </div>
+                    <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
+                      <div>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={`${BASE_PATH}/images/discify/brainstorm1.jpg`}
+                          alt="Sketch of a disc next to a track list with checkmarks and X's marking listened and unlistened songs, with a note about filtering between listened and not listened"
+                          className="w-full"
+                        />
+                        <p className="mt-2 text-xs text-foreground/50">
+                          Working out the track-by-track breakdown and how to mark listened vs. unlistened
+                        </p>
+                      </div>
+                      <div>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={`${BASE_PATH}/images/discify/brainstorm2.jpg`}
+                          alt="Sketch of a profile header with name, playlists, and followers, with notes debating whether to surface recently collected discs or a collected/in-progress count"
+                          className="w-full"
+                        />
+                        <p className="mt-2 text-xs text-foreground/50">
+                          Sketching the profile header — recently collected discs vs. a simple count
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </>
               )}
             </div>
@@ -728,39 +823,71 @@ export default function DiscifyPage() {
         {/* Design Decisions */}
         <section id="design-decisions" className="mt-16 scroll-mt-8">
           <Eyebrow>Design Decisions</Eyebrow>
-          <h2 className="mt-2 max-w-[700px] text-3xl font-semibold leading-tight text-foreground">
+          <h2 className="mt-2 max-w-[960px] text-3xl font-semibold leading-tight text-foreground">
             Every rule is a choice about what counts as really listening.
           </h2>
           {DECISIONS.map((decision, index) => (
-            <div key={decision.title}>
-              <DecisionCard index={index} decision={decision} />
-              {index === 4 ? <DiscDemo /> : null}
-            </div>
+            <DecisionCard
+              key={decision.title}
+              index={index}
+              decision={decision}
+              media={
+                index === 1 ? (
+                  <FigurePair
+                    items={[
+                      {
+                        src: "/images/discify/discs-with-singles.png",
+                        alt: "Six discs including singles like \"I Barely Know Her\" and \"Falls Into Place\" earning the same badge as full albums",
+                        caption: "Before — singles earned a disc just like full albums",
+                      },
+                      {
+                        src: "/images/discify/discs-no-singles.png",
+                        alt: "Discs shelf with singles removed, showing only full albums like \"Midnight Memories\" and \"FOUR\"",
+                        caption: "After — only completed albums earn a disc",
+                      },
+                    ]}
+                  />
+                ) : index === 4 ? (
+                  <DiscDemo />
+                ) : index === 5 ? (
+                  <div className="border border-black/15 bg-black/[0.035] p-6">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={`${BASE_PATH}/images/discify/discify-filter-pills.png`}
+                      alt="Discs collected header showing '3 collected · 5 in progress' above All, Collected, and In progress filter pills"
+                      className="w-full"
+                    />
+                    <p className="mt-2 text-xs text-foreground/50">
+                      Filter pills for switching between all, collected, and in-progress discs
+                    </p>
+                  </div>
+                ) : undefined
+              }
+            />
           ))}
         </section>
 
         {/* Exploring Placement */}
         <section id="exploring-placement" className="mt-16 scroll-mt-8">
           <Eyebrow>Exploring Placement</Eyebrow>
-          <h2 className="mt-2 max-w-[700px] text-3xl font-semibold leading-tight text-foreground">
+          <h2 className="mt-2 max-w-[960px] text-3xl font-semibold leading-tight text-foreground">
             Where should a disc appear?
           </h2>
-          <div className="mt-2">
+          <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
             {PLACEMENT_OPTIONS.map((option) => (
               <PlacementCard key={option.title} option={option} />
             ))}
           </div>
-          <MediaPlaceholder type="Visual" label="Search mockup (rejected) vs. album page (chosen)" />
         </section>
 
         {/* Core Flows */}
         <section id="core-flows" className="mt-16 scroll-mt-8">
           <Eyebrow>Core Flows</Eyebrow>
-          <h2 className="mt-2 max-w-[700px] text-3xl font-semibold leading-tight text-foreground">
+          <h2 className="mt-2 max-w-[960px] text-3xl font-semibold leading-tight text-foreground">
             Three places discs show up.
           </h2>
 
-          <h3 className="mt-10 max-w-[700px] text-xl font-semibold leading-snug text-foreground">
+          <h3 className="mt-10 max-w-[960px] text-xl font-semibold leading-snug text-foreground">
             Album page
           </h3>
           <Prose>
@@ -769,30 +896,39 @@ export default function DiscifyPage() {
               listened. Click and a breakdown shows which tracks you've heard and which you haven't.
             </p>
           </Prose>
-          <MediaPlaceholder type="Video" label="Album page hover + click breakdown" />
+          <MediaBoxVideo
+            src="/videos/discify-core-album-page.mp4"
+            caption="Hovering the mini disc on Short n' Sweet spins it in place, slowed down"
+          />
 
-          <h3 className="mt-10 max-w-[700px] text-xl font-semibold leading-snug text-foreground">Profile</h3>
+          <h3 className="mt-10 max-w-[960px] text-xl font-semibold leading-snug text-foreground">Profile</h3>
           <Prose>
             <p>
               Two new sections sit near the follower count and beneath Public Playlists, with one shared
               shelf captioned "X collected · X in progress."
             </p>
           </Prose>
-          <MediaPlaceholder type="Video" label="Profile shelf" />
+          <MediaBoxVideo
+            src="/videos/discify-core-profile.mp4"
+            caption="Discs collected shelf on the profile, slowed down"
+          />
 
-          <h3 className="mt-10 max-w-[700px] text-xl font-semibold leading-snug text-foreground">
+          <h3 className="mt-10 max-w-[960px] text-xl font-semibold leading-snug text-foreground">
             Show all
           </h3>
           <Prose>
             <p>A dedicated view with filter pills to switch between in-progress and complete discs.</p>
           </Prose>
-          <MediaPlaceholder type="Video" label="Show all + filters" />
+          <MediaBoxVideo
+            src="/videos/discify-core-show-all.mp4"
+            caption="Switching to the in-progress filter from the show all view, slowed down"
+          />
         </section>
 
-        {/* Outcome */}
-        <section id="outcome" className="mt-16 scroll-mt-8">
-          <Eyebrow>Outcome</Eyebrow>
-          <h2 className="mt-2 max-w-[700px] text-3xl font-semibold leading-tight text-foreground">
+        {/* Final Product */}
+        <section id="final-product" className="mt-16 scroll-mt-8">
+          <Eyebrow>Final Product</Eyebrow>
+          <h2 className="mt-2 max-w-[960px] text-3xl font-semibold leading-tight text-foreground">
             Shipped and in daily use.
           </h2>
           <Prose>
@@ -805,31 +941,38 @@ export default function DiscifyPage() {
               completed albums.
             </p>
           </Prose>
+          <MediaBoxVideo
+            src="/videos/discify-showcase.mp4"
+            caption="Discify in daily use — progress tracking, disc badges, and the collected shelf"
+          />
         </section>
 
         {/* Reflection */}
         <section id="reflection" className="mt-16 scroll-mt-8">
           <Eyebrow>Reflection</Eyebrow>
-          <h2 className="mt-2 max-w-[700px] text-3xl font-semibold leading-tight text-foreground">
+          <h2 className="mt-2 max-w-[960px] text-3xl font-semibold leading-tight text-foreground">
             What I learned
           </h2>
 
-          <h3 className="mt-10 max-w-[700px] text-xl font-semibold leading-snug text-foreground">
-            Designing inside someone else's product means designing to disappear.
-          </h3>
-          <Prose>
-            <p>
-              The best compliment for discify is that it looks like Spotify made it. That meant reusing
-              their patterns instead of inventing my own.
-            </p>
-          </Prose>
-
-          <h3 className="mt-10 max-w-[700px] text-xl font-semibold leading-snug text-foreground">
-            Knowing what the product is for makes the hard calls easy.
-          </h3>
-          <Prose>
-            <p>Making discs social would have boosted engagement and hurt the point of the product.</p>
-          </Prose>
+          <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2">
+            <div>
+              <h3 className="text-xl font-semibold leading-snug text-foreground">
+                Designing inside someone else's product means designing to disappear.
+              </h3>
+              <p className="mt-3 leading-relaxed text-foreground/70">
+                The best compliment for Discify is that it looks like Spotify made it. That meant
+                reusing their patterns instead of inventing my own.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold leading-snug text-foreground">
+                Knowing what the product is for makes the hard calls easy.
+              </h3>
+              <p className="mt-3 leading-relaxed text-foreground/70">
+                Making discs social would have boosted engagement and hurt the point of the product.
+              </p>
+            </div>
+          </div>
         </section>
 
         <Link
