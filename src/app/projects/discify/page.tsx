@@ -497,7 +497,7 @@ type ProcessStep = {
 const PROCESS_STEPS: ProcessStep[] = [
   { title: "1. Sketches" },
   { title: "2. Functional MVP" },
-  { title: "3. Designed" },
+  { title: "3. Redesigning the MVP" },
   { title: "4. Final Product" },
 ];
 
@@ -733,7 +733,7 @@ export default function DiscifyPage() {
                     imageCaption="First edition of collected discs design, where singles like &quot;4me 4me&quot; earned their own disc"
                   />
                 </>
-              ) : step.title === "3. Designed" ? (
+              ) : step.title === "3. Redesigning the MVP" ? (
                 <>
                   <Prose>
                     <p>
@@ -780,7 +780,7 @@ export default function DiscifyPage() {
                   <Prose>
                     <p>
                       Before writing any code, I sketched the core screens by hand to work out badge
-                      placement and the disc shape.
+                      placement and the disc progress loading feature.
                     </p>
                   </Prose>
                   <div className="mt-6 border border-black/15 bg-black/[0.035] p-6">
@@ -844,7 +844,7 @@ export default function DiscifyPage() {
                     items={[
                       {
                         src: "/images/discify/discs-with-singles.png",
-                        alt: "Six discs including singles like \"I Barely Know Her\" and \"Falls Into Place\" earning the same badge as full albums",
+                        alt: "A long, overpopulated list of discs including singles like \"I Barely Know Her,\" \"4Me 4Me,\" and \"SWAG\" earning the same badge as full albums",
                         caption:
                           "Before: overpopulated collected discs section, since singles earned a disc just like full albums",
                       },
@@ -976,10 +976,11 @@ export default function DiscifyPage() {
             </div>
             <div>
               <h3 className="text-xl font-semibold leading-snug text-foreground">
-                Knowing what the product is for and understanding the platform avoids feature creep.
+                Knowing the product's purpose and understanding the platform avoids feature creep.
               </h3>
               <p className="mt-3 leading-relaxed text-foreground/70">
-                Making discs social would have boosted engagement, but hurt the point of the product.
+                Adding a social aspect to the discs would have boosted engagement, but contradicted the
+                point of the product.
               </p>
             </div>
           </div>
