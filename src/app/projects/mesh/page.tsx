@@ -35,19 +35,9 @@ function Prose({ children }: { children: ReactNode }) {
   return <div className="mt-4 max-w-[960px] space-y-4 leading-relaxed text-foreground/70">{children}</div>;
 }
 
-function MediaFigure({
-  src,
-  alt,
-  caption,
-  pad = "p-6",
-}: {
-  src: string;
-  alt: string;
-  caption: string;
-  pad?: string;
-}) {
+function MediaFigure({ src, alt, caption }: { src: string; alt: string; caption: string }) {
   return (
-    <div className={`border border-black/15 bg-black/[0.035] ${pad}`}>
+    <div className="border border-black/15 bg-black/[0.035] p-6">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={`${BASE_PATH}${src}`} alt={alt} className="w-full border border-black/10" />
       <p className="mt-2 text-xs text-foreground/50">{caption}</p>
@@ -420,12 +410,7 @@ export default function MeshPage() {
                     </div>
                   </div>
                 ) : finding.image ? (
-                  <MediaFigure
-                    src={finding.image}
-                    alt={finding.imageAlt ?? ""}
-                    caption={finding.visual ?? ""}
-                    pad={index === 1 ? "p-16 sm:p-24" : "p-6"}
-                  />
+                  <MediaFigure src={finding.image} alt={finding.imageAlt ?? ""} caption={finding.visual ?? ""} />
                 ) : undefined
               }
             />
