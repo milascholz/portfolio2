@@ -470,8 +470,7 @@ export default function MeshPage() {
         <section id="reflection" className="mt-16 scroll-mt-8">
           <Eyebrow>Reflection</Eyebrow>
           <h2 className="mt-2 max-w-[960px] text-3xl font-semibold leading-tight text-foreground">
-            I organized the PDF by page and separated mobile and desktop feedback because that&apos;s how
-            I moved through the site.
+            What I learned.
           </h2>
           <Prose>
             <p>
