@@ -219,7 +219,7 @@ const DECISIONS: Decision[] = [
   {
     title: "Disc placement: album page only",
     decision: "The disc badge lives on the album page only.",
-    why: "A disc beside every album was too messy on search results and library lists — screens built for finding music, not celebrating a finished one. It also diluted the feature by putting it everywhere an album appears. The album page ties the badge to the listening experience itself, sitting where your eye naturally goes when you open or play an album.",
+    why: "A disc beside every album was too messy on search results and library lists, as they were screens built for finding music, not celebrating a finished one. It also diluted the feature by putting it everywhere an album appears. The album page ties the badge to the listening experience itself, sitting where your eye naturally goes when you open or play an album.",
     rejected: "Search results, library lists — both too cluttered and off-purpose.",
   },
 ];
